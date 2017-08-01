@@ -1,0 +1,3 @@
+services:
+  shiptor_fias.service.fias:
+    class: ShiptorFiasBundle\Service\FiasService
