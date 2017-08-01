@@ -1,8 +1,8 @@
 <?php
+
 namespace Shiptor\Bundle\FiasBundle\DataTransformer;
 
 use Shiptor\Bundle\FiasBundle\Entity\AddressObject;
-use Symfony\Component\Form\DataTransformerInterface;
 
 class AddressObjectArrayToEntityTransformer implements DataTransformerInterface
 {
@@ -53,8 +53,7 @@ class AddressObjectArrayToEntityTransformer implements DataTransformerInterface
             ->setNormDoc(isset($value['NORMDOC']) ? $value['NORMDOC'] : null)
             ->setCadNum(isset($value['CADNUM']) ? $value['CADNUM'] : null)
             ->setDivType(isset($value['DIVTYPE']) ? $value['DIVTYPE'] : null)
-            ->setUpdateDate(\DateTime::createFromFormat('Y-m-d', $value['UPDATEDATE']))
-        ;
+            ->setUpdateDate(\DateTime::createFromFormat('Y-m-d', $value['UPDATEDATE']));
 
         return $entity;
     }
@@ -67,43 +66,43 @@ class AddressObjectArrayToEntityTransformer implements DataTransformerInterface
     public function reverseTransform($value)
     {
         return [
-            'AOID'       => $value->getAoId(),
-            'AOGUID'     => $value->getAoGuid(),
+            'AOID' => $value->getAoId(),
+            'AOGUID' => $value->getAoGuid(),
             'PARENTGUID' => $value->getParentGuid(),
-            'PREVID'     => $value->getPrevId(),
-            'NEXTID'     => $value->getNextId(),
+            'PREVID' => $value->getPrevId(),
+            'NEXTID' => $value->getNextId(),
             'FORMALNAME' => $value->getFormalName(),
-            'OFFNAME'    => $value->getOffName(),
-            'SHORTNAME'  => $value->getShortName(),
-            'AOLEVEL'    => $value->getAoLevel(),
+            'OFFNAME' => $value->getOffName(),
+            'SHORTNAME' => $value->getShortName(),
+            'AOLEVEL' => $value->getAoLevel(),
             'REGIONCODE' => $value->getRegionCode(),
-            'AREACODE'   => $value->getAreaCode(),
-            'AUTOCODE'   => $value->getAutoCode(),
-            'CITYCODE'   => $value->getCityCode(),
-            'CTARCODE'   => $value->getCtArCode(),
-            'PLACECODE'  => $value->getPlaceCode(),
+            'AREACODE' => $value->getAreaCode(),
+            'AUTOCODE' => $value->getAutoCode(),
+            'CITYCODE' => $value->getCityCode(),
+            'CTARCODE' => $value->getCtArCode(),
+            'PLACECODE' => $value->getPlaceCode(),
             'STREETCODE' => $value->getStreetCode(),
-            'EXTRCODE'   => $value->getExtrCode(),
-            'SEXTCODE'   => $value->getSExtCode(),
-            'PLAINCODE'  => $value->getPlainCode(),
-            'CODE'       => $value->getCode(),
+            'EXTRCODE' => $value->getExtrCode(),
+            'SEXTCODE' => $value->getSExtCode(),
+            'PLAINCODE' => $value->getPlainCode(),
+            'CODE' => $value->getCode(),
             'CURRSTATUS' => $value->getCurrStatus(),
-            'ACTSTATUS'  => $value->getActStatus(),
+            'ACTSTATUS' => $value->getActStatus(),
             'LIVESTATUS' => $value->getLiveStatus(),
             'CENTSTATUS' => $value->getCentStatus(),
             'OPERSTATUS' => $value->getOperStatus(),
-            'IFNSFL'     => $value->getIfnsFl(),
-            'IFNSUL'     => $value->getIfnsUl(),
+            'IFNSFL' => $value->getIfnsFl(),
+            'IFNSUL' => $value->getIfnsUl(),
             'TERRIFNSFL' => $value->getTerrIfnsFl(),
             'TERRIFNSUL' => $value->getTerrIfnsUl(),
-            'OKATO'      => $value->getOkato(),
-            'OKTMO'      => $value->getOktmo(),
+            'OKATO' => $value->getOkato(),
+            'OKTMO' => $value->getOktmo(),
             'POSTALCODE' => $value->getPostalCode(),
-            'STARTDATE'  => $value->getStartDate()->format('Y-m-d'),
-            'ENDDATE'    => $value->getEndDate()->format('Y-m-d'),
-            'NORMDOC'    => $value->getNormDoc(),
-            'CADNUM'     => $value->getCadNum(),
-            'DIVTYPE'    => $value->getDivType(),
+            'STARTDATE' => $value->getStartDate()->format('Y-m-d'),
+            'ENDDATE' => $value->getEndDate()->format('Y-m-d'),
+            'NORMDOC' => $value->getNormDoc(),
+            'CADNUM' => $value->getCadNum(),
+            'DIVTYPE' => $value->getDivType(),
             'UPDATEDATE' => $value->getUpdateDate()->format('Y-m-d'),
         ];
     }

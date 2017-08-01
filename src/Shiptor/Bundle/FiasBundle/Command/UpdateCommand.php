@@ -1,4 +1,5 @@
 <?php
+
 namespace Shiptor\Bundle\FiasBundle\Command;
 
 use Symfony\Component\Console\Command\Command;
@@ -15,8 +16,7 @@ class UpdateCommand extends Command
     {
         $this
             ->setName('shiptor:fias:update')
-            ->setDescription('Get updates from fias.nalog.ru DownloadService.')
-        ;
+            ->setDescription('Get updates from fias.nalog.ru DownloadService.');
     }
 
     /**

@@ -1,4 +1,5 @@
 <?php
+
 namespace Shiptor\Bundle\FiasBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;

@@ -1,8 +1,8 @@
 <?php
+
 namespace Shiptor\Bundle\FiasBundle\DataTransformer;
 
 use Shiptor\Bundle\FiasBundle\Entity\ActualStatus;
-use Symfony\Component\Form\DataTransformerInterface;
 
 class ActualStatusArrayToEntityTransformer implements DataTransformerInterface
 {
@@ -17,8 +17,7 @@ class ActualStatusArrayToEntityTransformer implements DataTransformerInterface
 
         $entity
             ->setActStatId($value['ACTSTATID'])
-            ->setName($value['NAME'])
-        ;
+            ->setName($value['NAME']);
 
         return $entity;
     }
@@ -32,7 +31,7 @@ class ActualStatusArrayToEntityTransformer implements DataTransformerInterface
     {
         return [
             'ACTSTATID' => $value->getActStatId(),
-            'NAME'      => $value->getName(),
+            'NAME' => $value->getName(),
         ];
     }
 }
