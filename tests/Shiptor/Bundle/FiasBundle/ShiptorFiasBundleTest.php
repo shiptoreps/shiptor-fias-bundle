@@ -1,5 +1,5 @@
 <?php
-namespace ShiptorFiasBundle;
+namespace Shiptor\Bundle\FiasBundle;
 
 use PHPUnit\Framework\TestCase;
 
