@@ -1,5 +1,5 @@
 <?php
-namespace ShiptorFiasBundle\DependencyInjection;
+namespace Shiptor\Bundle\FiasBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -20,9 +20,6 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->root('shiptor_fias');
         $rootNode
             ->children()
-                ->scalarNode('example')
-                    ->isRequired()
-                ->end()
             ->end();
 
         return $treeBuilder;

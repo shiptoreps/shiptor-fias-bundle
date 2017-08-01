@@ -1,5 +1,5 @@
 <?php
-namespace ShiptorFiasBundle\DependencyInjection;
+namespace Shiptor\Bundle\FiasBundle\DependencyInjection;
 
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;

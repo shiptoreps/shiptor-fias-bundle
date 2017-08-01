@@ -22,12 +22,12 @@
   },
   "autoload": {
     "psr-4": {
-      "Shiptor\\": "src/"
+      "Shiptor\\Bundle\\FiasBundle\\": "src/Shiptor/Bundle/FiasBundle/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "ShiptorFiasBundle\\": "tests/"
+      "Shiptor\\Bundle\\FiasBundle\\": "tests/Shiptor/Bundle/FiasBundle/"
     }
   }
 }
