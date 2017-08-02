@@ -8,7 +8,7 @@ use Ramsey\Uuid\Uuid;
 /**
  * HouseInterval
  *
- * @ORM\Table(name="house_interval")
+ * @ORM\Table(name="fias.house_interval")
  * @ORM\Entity(repositoryClass="Shiptor\Bundle\FiasBundle\Repository\HouseIntervalRepository")
  */
 class HouseInterval
@@ -95,6 +95,7 @@ class HouseInterval
      *
      * @ORM\Column(name="int_guid", type="uuid", nullable=false)
      * @ORM\Id
+     * @ORM\GeneratedValue(strategy="UUID")
      */
     private $intGuid;
 

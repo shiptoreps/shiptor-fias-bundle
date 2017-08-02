@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * StructureStatus
  *
- * @ORM\Table(name="structure_status")
+ * @ORM\Table(name="fias.structure_status")
  * @ORM\Entity(repositoryClass="Shiptor\Bundle\FiasBundle\Repository\StructureStatusRepository")
  */
 class StructureStatus
@@ -17,6 +17,7 @@ class StructureStatus
      *
      * @ORM\Column(name="str_stat_id", type="integer")
      * @ORM\Id
+     * @ORM\GeneratedValue()
      */
     private $strStatId;
 

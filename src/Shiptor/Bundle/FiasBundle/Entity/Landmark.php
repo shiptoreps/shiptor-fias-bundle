@@ -8,7 +8,7 @@ use Ramsey\Uuid\Uuid;
 /**
  * Landmark
  *
- * @ORM\Table(name="landmark")
+ * @ORM\Table(name="fias.landmark")
  * @ORM\Entity(repositoryClass="Shiptor\Bundle\FiasBundle\Repository\LandmarkRepository")
  */
 class Landmark
@@ -88,6 +88,7 @@ class Landmark
      *
      * @ORM\Column(name="land_guid", type="uuid", nullable=false)
      * @ORM\Id
+     * @ORM\GeneratedValue(strategy="UUID")
      */
     private $landGuid;
 

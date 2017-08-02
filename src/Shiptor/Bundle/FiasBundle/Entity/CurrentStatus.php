@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * CurrentStatus
  *
- * @ORM\Table(name="current_status")
+ * @ORM\Table(name="fias.current_status")
  * @ORM\Entity(repositoryClass="Shiptor\Bundle\FiasBundle\Repository\CurrentStatusRepository")
  */
 class CurrentStatus
@@ -17,6 +17,7 @@ class CurrentStatus
      *
      * @ORM\Column(name="current_st_id", type="integer", nullable=false)
      * @ORM\Id
+     * @ORM\GeneratedValue()
      */
     private $currentStId;
 

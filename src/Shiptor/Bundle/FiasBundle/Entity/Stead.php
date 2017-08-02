@@ -8,7 +8,7 @@ use Ramsey\Uuid\Uuid;
 /**
  * Stead
  *
- * @ORM\Table(name="stead")
+ * @ORM\Table(name="fias.stead")
  * @ORM\Entity(repositoryClass="Shiptor\Bundle\FiasBundle\Repository\SteadRepository")
  */
 class Stead
@@ -95,6 +95,7 @@ class Stead
      *
      * @ORM\Column(name="stead_guid", type="uuid", nullable=false)
      * @ORM\Id
+     * @ORM\GeneratedValue(strategy="UUID")
      */
     private $steadGuid;
 

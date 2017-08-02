@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * EstateStatus
  *
- * @ORM\Table(name="estate_status")
+ * @ORM\Table(name="fias.estate_status")
  * @ORM\Entity(repositoryClass="Shiptor\Bundle\FiasBundle\Repository\EstateStatusRepository")
  */
 class EstateStatus
@@ -17,6 +17,7 @@ class EstateStatus
      *
      * @ORM\Column(name="est_stat_id", type="integer")
      * @ORM\Id
+     * @ORM\GeneratedValue()
      */
     private $estStatId;
 

@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * AddressObjectType
  *
- * @ORM\Table(name="address_object_type")
+ * @ORM\Table(name="fias.address_object_type")
  * @ORM\Entity(repositoryClass="Shiptor\Bundle\FiasBundle\Repository\AddressObjectTypeRepository")
  */
 class AddressObjectType

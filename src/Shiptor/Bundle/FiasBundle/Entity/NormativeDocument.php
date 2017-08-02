@@ -8,7 +8,7 @@ use Ramsey\Uuid\Uuid;
 /**
  * NormativeDocument
  *
- * @ORM\Table(name="normative_document")
+ * @ORM\Table(name="fias.normative_document")
  * @ORM\Entity(repositoryClass="Shiptor\Bundle\FiasBundle\Repository\NormativeDocumentRepository")
  */
 class NormativeDocument
@@ -18,6 +18,7 @@ class NormativeDocument
      *
      * @ORM\Column(name="norm_doc_id", type="uuid", nullable=false)
      * @ORM\Id
+     * @ORM\GeneratedValue(strategy="UUID")
      */
     private $normDocId;
 

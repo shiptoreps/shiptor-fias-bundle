@@ -8,7 +8,7 @@ use Ramsey\Uuid\Uuid;
 /**
  * AddressObject
  *
- * @ORM\Table(name="address_object")
+ * @ORM\Table(name="fias.address_object")
  * @ORM\Entity(repositoryClass="Shiptor\Bundle\FiasBundle\Repository\AddressObjectRepository")
  */
 class AddressObject
