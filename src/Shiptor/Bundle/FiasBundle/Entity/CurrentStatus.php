@@ -17,7 +17,6 @@ class CurrentStatus
      *
      * @ORM\Column(name="current_st_id", type="integer", nullable=false)
      * @ORM\Id
-     * @ORM\GeneratedValue()
      */
     private $currentStId;
 

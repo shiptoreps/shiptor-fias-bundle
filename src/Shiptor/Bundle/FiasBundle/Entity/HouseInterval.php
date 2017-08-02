@@ -95,7 +95,6 @@ class HouseInterval
      *
      * @ORM\Column(name="int_guid", type="uuid", nullable=false)
      * @ORM\Id
-     * @ORM\GeneratedValue(strategy="UUID")
      */
     private $intGuid;
 

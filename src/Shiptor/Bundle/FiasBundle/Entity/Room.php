@@ -74,7 +74,6 @@ class Room
      *
      * @ORM\Column(name="room_guid", type="uuid", nullable=false)
      * @ORM\Id
-     * @ORM\GeneratedValue(strategy="UUID")
      */
     private $roomGuid;
 

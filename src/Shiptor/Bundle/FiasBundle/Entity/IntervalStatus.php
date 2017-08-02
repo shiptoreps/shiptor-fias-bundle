@@ -17,7 +17,6 @@ class IntervalStatus
      *
      * @ORM\Column(name="intv_stat_id", type="integer")
      * @ORM\Id
-     * @ORM\GeneratedValue()
      */
     private $intvStatId;
 

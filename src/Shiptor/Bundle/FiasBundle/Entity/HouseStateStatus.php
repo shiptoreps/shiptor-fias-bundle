@@ -17,7 +17,6 @@ class HouseStateStatus
      *
      * @ORM\Column(name="house_st_id", type="integer")
      * @ORM\Id
-     * @ORM\GeneratedValue()
      */
     private $houseStId;
 

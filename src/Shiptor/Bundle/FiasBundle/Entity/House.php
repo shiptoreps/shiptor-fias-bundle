@@ -116,7 +116,6 @@ class House
      *
      * @ORM\Column(name="house_guid", type="uuid", nullable=false)
      * @ORM\Id
-     * @ORM\GeneratedValue(strategy="UUID")
      */
     private $houseGuid;
 

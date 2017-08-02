@@ -17,7 +17,6 @@ class CenterStatus
      *
      * @ORM\Column(name="center_st_id", type="integer")
      * @ORM\Id
-     * @ORM\GeneratedValue()
      */
     private $centerStId;
 

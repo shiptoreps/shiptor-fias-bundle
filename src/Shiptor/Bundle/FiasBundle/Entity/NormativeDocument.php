@@ -18,7 +18,6 @@ class NormativeDocument
      *
      * @ORM\Column(name="norm_doc_id", type="uuid", nullable=false)
      * @ORM\Id
-     * @ORM\GeneratedValue(strategy="UUID")
      */
     private $normDocId;
 

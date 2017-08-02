@@ -17,7 +17,6 @@ class StructureStatus
      *
      * @ORM\Column(name="str_stat_id", type="integer")
      * @ORM\Id
-     * @ORM\GeneratedValue()
      */
     private $strStatId;
 

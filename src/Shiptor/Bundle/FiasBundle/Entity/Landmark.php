@@ -88,7 +88,6 @@ class Landmark
      *
      * @ORM\Column(name="land_guid", type="uuid", nullable=false)
      * @ORM\Id
-     * @ORM\GeneratedValue(strategy="UUID")
      */
     private $landGuid;
 

@@ -17,7 +17,6 @@ class OperationStatus
      *
      * @ORM\Column(name="oper_stat_id", type="integer", nullable=false)
      * @ORM\Id
-     * @ORM\GeneratedValue()
      */
     private $operStatId;
 

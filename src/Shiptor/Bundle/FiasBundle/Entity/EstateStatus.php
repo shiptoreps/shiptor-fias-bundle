@@ -17,7 +17,6 @@ class EstateStatus
      *
      * @ORM\Column(name="est_stat_id", type="integer")
      * @ORM\Id
-     * @ORM\GeneratedValue()
      */
     private $estStatId;
 
