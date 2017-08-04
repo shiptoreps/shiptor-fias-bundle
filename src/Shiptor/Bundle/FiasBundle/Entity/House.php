@@ -16,158 +16,136 @@ class House
     /**
      * @var string
      *
-     * @ORM\Column(name="postal_code", type="string", length=6, nullable=false)
+     * @ORM\Column(name="postal_code", type="string", length=6, nullable=true)
      */
     private $postalCode;
-
     /**
      * @var string
      *
      * @ORM\Column(name="ifns_fl", type="string", length=4, nullable=true)
      */
     private $ifnsFl;
-
     /**
      * @var string
      *
      * @ORM\Column(name="terr_ifns_fl", type="string", length=4, nullable=true)
      */
     private $terrIfnsFl;
-
     /**
      * @var string
      *
      * @ORM\Column(name="ifns_ul", type="string", length=4, nullable=true)
      */
     private $ifnsUl;
-
     /**
      * @var string
      *
      * @ORM\Column(name="terr_ifns_ul", type="string", length=4, nullable=true)
      */
     private $terrIfnsUl;
-
     /**
      * @var string
      *
      * @ORM\Column(name="okato", type="string", length=11, nullable=true)
      */
     private $okato;
-
     /**
      * @var string
      *
      * @ORM\Column(name="oktmo", type="string", length=11, nullable=true)
      */
     private $oktmo;
-
     /**
      * @var \DateTime
      *
      * @ORM\Column(name="update_date", type="date", nullable=false)
      */
     private $updateDate;
-
     /**
      * @var string
      *
      * @ORM\Column(name="house_num", type="string", length=20, nullable=true)
      */
     private $houseNum;
-
     /**
      * @var int
      *
      * @ORM\Column(name="est_status", type="integer", nullable=false)
      */
     private $estStatus;
-
     /**
      * @var string
      *
      * @ORM\Column(name="build_num", type="string", length=10, nullable=true)
      */
     private $buildNum;
-
     /**
      * @var string
      *
      * @ORM\Column(name="struc_num", type="string", length=10, nullable=true)
      */
     private $strucNum;
-
     /**
      * @var int
      *
      * @ORM\Column(name="str_status", type="integer", nullable=false)
      */
     private $strStatus;
-
     /**
      * @var Uuid
      *
      * @ORM\Column(name="house_id", type="uuid", nullable=false)
+     * @ORM\Id
      */
     private $houseId;
-
     /**
      * @var Uuid
      *
      * @ORM\Column(name="house_guid", type="uuid", nullable=false)
-     * @ORM\Id
      */
     private $houseGuid;
-
     /**
      * @var Uuid
      *
      * @ORM\Column(name="ao_guid", type="uuid", nullable=false)
      */
     private $aoGuid;
-
     /**
      * @var \DateTime
      *
      * @ORM\Column(name="start_date", type="date", nullable=false)
      */
     private $startDate;
-
     /**
      * @var \DateTime
      *
      * @ORM\Column(name="end_date", type="date", nullable=false)
      */
     private $endDate;
-
     /**
      * @var int
      *
      * @ORM\Column(name="stat_status", type="integer", nullable=false)
      */
     private $statStatus;
-
     /**
      * @var Uuid
      *
      * @ORM\Column(name="norm_doc", type="uuid", nullable=true)
      */
     private $normDoc;
-
     /**
      * @var int
      *
      * @ORM\Column(name="counter", type="integer", nullable=false)
      */
     private $counter;
-
     /**
      * @var string
      *
      * @ORM\Column(name="cad_num", type="string", length=100, nullable=true)
      */
     private $cadNum;
-
     /**
      * @var int
      *
@@ -727,4 +705,3 @@ class House
         return $this->divType;
     }
 }
-
