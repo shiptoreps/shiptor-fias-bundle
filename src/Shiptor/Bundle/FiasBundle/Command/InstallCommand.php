@@ -38,18 +38,18 @@ class InstallCommand extends AbstractCommand
     const FIAS_FULL_DB_DIR = 'fias_dbf';
 
     private $transformersClasses = [
-//        'ACTSTAT'  => ['ActualStatus' => ActualStatus::class],
-//        'ADDROBJ'  => ['Object' => AddressObject::class],
-//        'CENTERST' => ['CenterStatus' => CenterStatus::class],
-//        'CURENTST' => ['CurrentStatus' => CurrentStatus::class],
-//        'ESTSTAT'  => ['EstateStatus' => EstateStatus::class],
-//        'HOUSE'    => ['House' => House::class],
-//        'HOUSEINT' => ['HouseInterval' => HouseInterval::class],
-//        'HSTSTAT'  => ['HouseStateStatus' => HouseStateStatus::class],
-//        'INTVSTAT' => ['IntervalStatus' => IntervalStatus::class],
-//        'LANDMARK' => ['Landmark' => Landmark::class],
-//        'NORMDOC'  => ['NormativeDocument' => NormativeDocument::class],
-//        'OPERSTAT' => ['OperationStatus' => OperationStatus::class],
+        'ACTSTAT'  => ['ActualStatus' => ActualStatus::class],
+        'ADDROBJ'  => ['Object' => AddressObject::class],
+        'CENTERST' => ['CenterStatus' => CenterStatus::class],
+        'CURENTST' => ['CurrentStatus' => CurrentStatus::class],
+        'ESTSTAT'  => ['EstateStatus' => EstateStatus::class],
+        'HOUSE'    => ['House' => House::class],
+        'HOUSEINT' => ['HouseInterval' => HouseInterval::class],
+        'HSTSTAT'  => ['HouseStateStatus' => HouseStateStatus::class],
+        'INTVSTAT' => ['IntervalStatus' => IntervalStatus::class],
+        'LANDMARK' => ['Landmark' => Landmark::class],
+        'NORMDOC'  => ['NormativeDocument' => NormativeDocument::class],
+        'OPERSTAT' => ['OperationStatus' => OperationStatus::class],
         'ROOM'     => ['Room' => Room::class],
         'SOCRBASE' => ['AddressObjectType' => AddressObjectType::class],
         'STEAD'    => ['Stead' => Stead::class],
@@ -105,7 +105,6 @@ class InstallCommand extends AbstractCommand
                         if ($reader->name === $tag && $reader->nodeType === XMLReader::ELEMENT) {
                             $converter = new AttributeConverter(new $class());
                             $objectNormalizer = new ObjectNormalizer(null, $converter);
-
                             $serializer = new Serializer([$objectNormalizer], [new XmlEncoder()]);
 
                             $entity = $serializer->deserialize($reader->readOuterXml(), $class, 'xml');
@@ -113,11 +112,8 @@ class InstallCommand extends AbstractCommand
                             DateTimeNormalizer::normalize($entity);
 
                             $this->getEm()->persist($entity);
-                            $this->getEm()->flush();
 
                             $output->writeln($tag."  -----    ".$class);
-
-                            $this->getEm()->clear();
 
                             unset($entity);
                         }
@@ -126,6 +122,9 @@ class InstallCommand extends AbstractCommand
                         unset($class);
                     }
                 }
+
+                $this->getEm()->flush();
+                $this->getEm()->clear();
 
                 $reader->close();
 
