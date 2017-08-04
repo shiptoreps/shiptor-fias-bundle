@@ -80,6 +80,7 @@ class Landmark
      * @var Uuid
      *
      * @ORM\Column(name="land_id", type="uuid", nullable=false)
+     * @ORM\Id
      */
     private $landId;
 
@@ -87,7 +88,6 @@ class Landmark
      * @var Uuid
      *
      * @ORM\Column(name="land_guid", type="uuid", nullable=false)
-     * @ORM\Id
      */
     private $landGuid;
 

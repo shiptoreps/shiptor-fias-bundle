@@ -64,6 +64,7 @@ class Room
 
     /**
      * @var Uuid
+     * @ORM\Id
      *
      * @ORM\Column(name="room_id", type="uuid", nullable=false)
      */
@@ -73,7 +74,6 @@ class Room
      * @var Uuid
      *
      * @ORM\Column(name="room_guid", type="uuid", nullable=false)
-     * @ORM\Id
      */
     private $roomGuid;
 
@@ -541,4 +541,3 @@ class Room
         return $this->cadNum;
     }
 }
-

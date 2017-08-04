@@ -87,6 +87,7 @@ class Stead
      * @var Uuid
      *
      * @ORM\Column(name="stead_id", type="uuid", nullable=false)
+     * @ORM\Id
      */
     private $steadId;
 
@@ -94,7 +95,6 @@ class Stead
      * @var Uuid
      *
      * @ORM\Column(name="stead_guid", type="uuid", nullable=false)
-     * @ORM\Id
      */
     private $steadGuid;
 

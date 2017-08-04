@@ -85,6 +85,7 @@ class HouseInterval
 
     /**
      * @var Uuid
+     * @ORM\Id
      *
      * @ORM\Column(name="house_int_id", type="uuid", nullable=false)
      */
@@ -94,7 +95,6 @@ class HouseInterval
      * @var Uuid
      *
      * @ORM\Column(name="int_guid", type="uuid", nullable=false)
-     * @ORM\Id
      */
     private $intGuid;
 
