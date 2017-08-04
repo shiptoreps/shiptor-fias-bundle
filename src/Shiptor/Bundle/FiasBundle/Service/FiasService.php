@@ -12,6 +12,7 @@ use Symfony\Component\Filesystem\Filesystem;
 class FiasService extends AbstractService
 {
     const FIAS_FULL_DB_FILE = 'fias_dbf.rar';
+    const FIAS_FULL_DB_URL = 'http://fias.nalog.ru/Public/Downloads/Actual/fias_xml.rar';
 
     /**
      * @param string $destination
@@ -20,7 +21,7 @@ class FiasService extends AbstractService
     {
         $this->makeDir($destination);
 
-        file_put_contents($destination.DIRECTORY_SEPARATOR.self::FIAS_FULL_DB_FILE, fopen("http://fias.nalog.ru/Public/Downloads/Actual/fias_xml.rar", 'r'));
+        file_put_contents($destination.DIRECTORY_SEPARATOR.self::FIAS_FULL_DB_FILE, fopen(self::FIAS_FULL_DB_URL, 'r'));
     }
 
     /**

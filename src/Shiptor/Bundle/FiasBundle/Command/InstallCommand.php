@@ -80,10 +80,9 @@ class InstallCommand extends AbstractCommand
     {
         $pattern = '/^AS_((DEL_)?[A-Z]+)_\d{8}_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.XML$/';
         $dirName = sys_get_temp_dir().DIRECTORY_SEPARATOR.self::DIR_NAME;
-        $extractDir = '.';
 
         $this->getFiasService()->downloadFullArchive($dirName);
-        $this->getFiasService()->extractArchive($dirName, $extractDir);
+        $this->getFiasService()->extractArchive($dirName, $dirName);
 
         $files = scandir($dirName, SCANDIR_SORT_NONE);
 
