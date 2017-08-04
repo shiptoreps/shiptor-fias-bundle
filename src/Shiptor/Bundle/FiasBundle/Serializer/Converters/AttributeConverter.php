@@ -9,9 +9,12 @@ use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 class AttributeConverter implements NameConverterInterface
 {
     const ADDRESS_OBJECT_TYPE__KOD_T_ST = '@KOD_T_ST';
+
+    /** @var array */
     public static $dataExeptions = [
         'kodTsT' => self::ADDRESS_OBJECT_TYPE__KOD_T_ST,
     ];
+
     /** @var object */
     public $class;
 
