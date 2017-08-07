@@ -15,10 +15,10 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use XMLReader;
 
 /**
- * Class UpdateCommand
+ * Class UpdateListCommand
  * @package Shiptor\Bundle\FiasBundle\Command
  */
-class UpdateCommand extends AbstractCommand
+class UpdateListCommand extends AbstractCommand
 {
     const FIAS_UPDATE_URL = 'http://fias.nalog.ru/WebServices/Public/DownloadService.asmx';
     const FIAS_GET_ALL_DOWNLOAD_FILE_INFO = 'GetAllDownloadFileInfo';
@@ -31,8 +31,7 @@ class UpdateCommand extends AbstractCommand
     protected function configure()
     {
         $this
-            ->setName('shiptor:fias:update')
-            ->addArgument('version', InputArgument::OPTIONAL, 'Version of update:')
+            ->setName('shiptor:fias:update:list')
             ->setDescription('Get updates from fias.nalog.ru DownloadService.');
     }
 
@@ -46,20 +45,6 @@ class UpdateCommand extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $version = $input->getArgument('version');
-
-        $repoUpdateList = $this->getEm()
-            ->getRepository('ShiptorFiasBundle:UpdateList')
-            ->createQueryBuilder('ul')
-//            ->where('ul.versionId = :versionId')
-//            ->setParameter('versionId',$version)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-        dump($repoUpdateList);exit;
-
-
-
         $response = $this->fiasGetUpdatesApiCall();
 
         if (!isset($response) && !isset($response['response']) && $response['code'] !== 200) {
@@ -89,14 +74,14 @@ class UpdateCommand extends AbstractCommand
 
                 $this->getEm()->persist($entity);
 
-                $output->writeln($entity->getVersionId());
-
                 unset($entity);
             }
         }
 
         $this->getEm()->flush();
         $this->getEm()->clear();
+
+        $output->writeln('Fias Update List has been completed success.');
 
         return 0;
     }
