@@ -82,6 +82,13 @@ class FiasService extends AbstractService
         }
     }
 
+    /**
+     * @param string          $scanDir
+     * @param array           $transformersClasses
+     * @param OutputInterface $output
+     * @return bool
+     *
+     */
     public function saveXmlToDb($scanDir, $transformersClasses, OutputInterface $output)
     {
         $pattern = '/^AS_((DEL_)?[A-Z]+)_\d{8}_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.XML$/';
@@ -133,5 +140,6 @@ class FiasService extends AbstractService
             }
         }
 
+        return true;
     }
 }
