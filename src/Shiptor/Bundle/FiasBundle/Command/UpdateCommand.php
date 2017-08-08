@@ -91,7 +91,7 @@ class UpdateCommand extends AbstractCommand
 
             if ($this->getFiasService()->saveXmlToDb($dirName, $this->transformersClasses, $output)) {
                 $item->setUpdatedAt(new \DateTime());
-                $this->getEm()->persist($item);
+                $this->getEm()->merge($item);
                 $this->getEm()->flush();
             }
         }
