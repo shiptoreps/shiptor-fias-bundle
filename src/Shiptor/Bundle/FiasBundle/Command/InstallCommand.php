@@ -18,15 +18,9 @@ use Shiptor\Bundle\FiasBundle\Entity\OperationStatus;
 use Shiptor\Bundle\FiasBundle\Entity\Room;
 use Shiptor\Bundle\FiasBundle\Entity\Stead;
 use Shiptor\Bundle\FiasBundle\Entity\StructureStatus;
-use Shiptor\Bundle\FiasBundle\Serializer\Converters\AttributeConverter;
-use Shiptor\Bundle\FiasBundle\Serializer\Normalizers\DateTimeNormalizer;
 use Shiptor\Bundle\FiasBundle\Service\FiasService;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Serializer\Encoder\XmlEncoder;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Serializer;
-use XMLReader;
 
 /**
  * Class InstallCommand
