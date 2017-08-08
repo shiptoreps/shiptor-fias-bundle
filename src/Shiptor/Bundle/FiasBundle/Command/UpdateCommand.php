@@ -1,18 +1,28 @@
 <?php
 namespace Shiptor\Bundle\FiasBundle\Command;
 
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Routing\Exception\InvalidParameterException;
-use Symfony\Component\Serializer\Serializer;
 use Shiptor\Bundle\FiasBundle\AbstractCommand;
+use Shiptor\Bundle\FiasBundle\Entity\ActualStatus;
+use Shiptor\Bundle\FiasBundle\Entity\AddressObject;
+use Shiptor\Bundle\FiasBundle\Entity\AddressObjectType;
+use Shiptor\Bundle\FiasBundle\Entity\CenterStatus;
+use Shiptor\Bundle\FiasBundle\Entity\CurrentStatus;
+use Shiptor\Bundle\FiasBundle\Entity\EstateStatus;
+use Shiptor\Bundle\FiasBundle\Entity\House;
+use Shiptor\Bundle\FiasBundle\Entity\HouseInterval;
+use Shiptor\Bundle\FiasBundle\Entity\HouseStateStatus;
+use Shiptor\Bundle\FiasBundle\Entity\IntervalStatus;
+use Shiptor\Bundle\FiasBundle\Entity\Landmark;
+use Shiptor\Bundle\FiasBundle\Entity\NormativeDocument;
+use Shiptor\Bundle\FiasBundle\Entity\OperationStatus;
+use Shiptor\Bundle\FiasBundle\Entity\Room;
+use Shiptor\Bundle\FiasBundle\Entity\Stead;
+use Shiptor\Bundle\FiasBundle\Entity\StructureStatus;
 use Shiptor\Bundle\FiasBundle\Entity\UpdateList;
-use Shiptor\Bundle\FiasBundle\Serializer\Converters\AttributeConverter;
 use Shiptor\Bundle\FiasBundle\Service\FiasService;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Serializer\Encoder\XmlEncoder;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use XMLReader;
 
 /**
  * Class UpdateCommand
@@ -20,13 +30,28 @@ use XMLReader;
  */
 class UpdateCommand extends AbstractCommand
 {
-    const FIAS_UPDATE_URL = 'http://fias.nalog.ru/WebServices/Public/DownloadService.asmx';
-    const FIAS_GET_ALL_DOWNLOAD_FILE_INFO = 'GetAllDownloadFileInfo';
-    const FIAS_GET_LAST_DOWNLOAD_FILE_INFO = 'GetLastDownloadFileInfo';
-    const FIAS_UPDATE_DIR = 'fias_updates';
-    const FIAS_UPDATE_FILE = 'fias_updat_list.xml';
+    const FIAS_UPDATE_DIR = 'fias_updates'.DIRECTORY_SEPARATOR.'fias_update_';
+    const FILE_EXTENTION = '.rar';
+    const FIAS_UPDATE_FILE = 'fias_updat_';
 
-    const XML_TAG_DOWNLOAD_FILE_INFO = 'DownloadFileInfo';
+    private $transformersClasses = [
+//        'ACTSTAT'  => ['ActualStatus' => ActualStatus::class],
+//        'ADDROBJ'  => ['Object' => AddressObject::class],
+//        'CENTERST' => ['CenterStatus' => CenterStatus::class],
+//        'CURENTST' => ['CurrentStatus' => CurrentStatus::class],
+//        'ESTSTAT'  => ['EstateStatus' => EstateStatus::class],
+//        'HOUSE'    => ['House' => House::class],
+//        'HOUSEINT' => ['HouseInterval' => HouseInterval::class],
+//        'HSTSTAT'  => ['HouseStateStatus' => HouseStateStatus::class],
+//        'INTVSTAT' => ['IntervalStatus' => IntervalStatus::class],
+        'LANDMARK' => ['Landmark' => Landmark::class],
+        'NORMDOC'  => ['NormativeDocument' => NormativeDocument::class],
+        'OPERSTAT' => ['OperationStatus' => OperationStatus::class],
+        'ROOM'     => ['Room' => Room::class],
+        'SOCRBASE' => ['AddressObjectType' => AddressObjectType::class],
+        'STEAD'    => ['Stead' => Stead::class],
+        'STRSTAT'  => ['StructureStatus' => StructureStatus::class],
+    ];
 
     protected function configure()
     {
@@ -46,117 +71,28 @@ class UpdateCommand extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+
         $version = $input->getArgument('version');
-
-        $repoUpdateList = $this->getEm()
+        /** @var UpdateList[] $updateList */
+        $updateList = $this->getEm()
             ->getRepository('ShiptorFiasBundle:UpdateList')
-            ->createQueryBuilder('ul')
-//            ->where('ul.versionId = :versionId')
-//            ->setParameter('versionId',$version)
+            ->getUpdateList($version)
             ->getQuery()
-            ->getOneOrNullResult()
+            ->getResult()
         ;
-        dump($repoUpdateList);exit;
 
+        foreach ($updateList as $item) {
+            $dirName = sys_get_temp_dir().DIRECTORY_SEPARATOR.self::FIAS_UPDATE_DIR.$item->getVersionId();
+            $fileName = self::FIAS_UPDATE_FILE.$item->getVersionId().self::FILE_EXTENTION;
 
-
-        $response = $this->fiasGetUpdatesApiCall();
-
-        if (!isset($response) && !isset($response['response']) && $response['code'] !== 200) {
-            throw new InvalidParameterException('Missing expected response.');
-        }
-
-        $dir = sys_get_temp_dir().DIRECTORY_SEPARATOR.self::FIAS_UPDATE_DIR;
-        $this->saveAsXML($response['response'], $dir, self::FIAS_UPDATE_FILE);
-
-        $reader = new XMLReader();
-        $reader->open($dir.DIRECTORY_SEPARATOR.self::FIAS_UPDATE_FILE);
-
-        while ($reader->read()) {
-            if ($reader->name === self::XML_TAG_DOWNLOAD_FILE_INFO && $reader->nodeType === XMLReader::ELEMENT) {
-                $converter = new AttributeConverter(new UpdateList());
-                $objectNormalizer = new ObjectNormalizer(null, $converter);
-                $serializer = new Serializer([$objectNormalizer], [new XmlEncoder()]);
-
-                /** @var UpdateList $entity */
-                $entity = $serializer->deserialize($reader->readOuterXml(), UpdateList::class, 'xml');
-
-                $existsEntity = $this->getEm()->getRepository('ShiptorFiasBundle:UpdateList')->find($entity->getVersionId());
-
-                if ($existsEntity) {
-                    continue;
-                }
-
-                $this->getEm()->persist($entity);
-
-                $output->writeln($entity->getVersionId());
-
-                unset($entity);
+            if ($this->getFiasService()->downloadFullArchive($dirName, $fileName, $item->getFiasDeltaXmlUrl())) {
+                $this->getFiasService()->extractArchive($dirName, $fileName, $dirName);
             }
-        }
 
-        $this->getEm()->flush();
-        $this->getEm()->clear();
+            $this->getFiasService()->saveXmlToDb($dirName, $this->transformersClasses, $output);
+        }
 
         return 0;
-    }
-
-    /**
-     * @return array
-     */
-    protected function fiasGetUpdatesApiCall()
-    {
-        $arguments =
-            '<?xml version="1.0" encoding="utf-8"?>
-            <soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
-              <soap12:Body>
-                <GetAllDownloadFileInfo xmlns="http://fias.nalog.ru/WebServices/Public/DownloadService.asmx" />
-              </soap12:Body>
-            </soap12:Envelope>';
-
-        $headers = [
-            'Host: fias.nalog.ru',
-            'Content-Type: text/xml; charset=utf-8',
-            'Content-Length: '.strlen($arguments),
-            'SOAPAction: '.self::FIAS_UPDATE_URL.'/'.self::FIAS_GET_ALL_DOWNLOAD_FILE_INFO,
-        ];
-
-        $ch = curl_init(self::FIAS_UPDATE_URL);
-
-        curl_setopt_array($ch, [
-            CURLOPT_POST           => true,
-            CURLOPT_HEADER         => false,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER     => $headers,
-            CURLOPT_POSTFIELDS     => $arguments,
-        ]);
-
-        $response = curl_exec($ch);
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        return [
-            'response' => $response,
-            'code'     => $httpcode,
-        ];
-    }
-
-    /**
-     * @param string $data
-     * @param string $dir
-     * @param string $fileName
-     */
-    protected function saveAsXML($data, $dir, $fileName)
-    {
-        $this->getFiasService()->makeDir($dir);
-
-        $file = fopen($dir.DIRECTORY_SEPARATOR.$fileName, 'w+');
-        fwrite($file, $data);
-        fclose($file);
-
-        if (!file_exists($dir.DIRECTORY_SEPARATOR.$fileName)) {
-            throw new InvalidParameterException($dir.DIRECTORY_SEPARATOR.$fileName.' file does not exists');
-        }
     }
 
     /**

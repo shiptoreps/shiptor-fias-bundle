@@ -9,4 +9,21 @@ namespace Shiptor\Bundle\FiasBundle\Repository;
  */
 class UpdateListRepository extends \Doctrine\ORM\EntityRepository
 {
+    /**
+     * @param $version
+     *
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    public function getUpdateList($version)
+    {
+        $qb = $this->createQueryBuilder('ul');
+
+        if ($version) {
+            $qb
+                ->where('ul.versionId = :versionId')
+                ->setParameter('versionId',$version);
+        }
+
+        return $qb;
+    }
 }

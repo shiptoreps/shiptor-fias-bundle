@@ -1,17 +1,16 @@
 <?php
 namespace Shiptor\Bundle\FiasBundle\Command;
 
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Routing\Exception\InvalidParameterException;
-use Symfony\Component\Serializer\Serializer;
 use Shiptor\Bundle\FiasBundle\AbstractCommand;
 use Shiptor\Bundle\FiasBundle\Entity\UpdateList;
 use Shiptor\Bundle\FiasBundle\Serializer\Converters\AttributeConverter;
 use Shiptor\Bundle\FiasBundle\Service\FiasService;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Routing\Exception\InvalidParameterException;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 use XMLReader;
 
 /**
@@ -23,7 +22,7 @@ class UpdateListCommand extends AbstractCommand
     const FIAS_UPDATE_URL = 'http://fias.nalog.ru/WebServices/Public/DownloadService.asmx';
     const FIAS_GET_ALL_DOWNLOAD_FILE_INFO = 'GetAllDownloadFileInfo';
     const FIAS_GET_LAST_DOWNLOAD_FILE_INFO = 'GetLastDownloadFileInfo';
-    const FIAS_UPDATE_DIR = 'fias_updates';
+    const FIAS_UPDATE_DIR = 'fias_update_list';
     const FIAS_UPDATE_FILE = 'fias_updat_list.xml';
 
     const XML_TAG_DOWNLOAD_FILE_INFO = 'DownloadFileInfo';

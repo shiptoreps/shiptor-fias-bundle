@@ -36,6 +36,8 @@ class InstallCommand extends AbstractCommand
 {
     const DIR_NAME = 'fias';
     const FIAS_FULL_DB_DIR = 'fias_dbf';
+    const FIAS_FULL_DB_FILE = 'fias_dbf.rar';
+    const FIAS_FULL_DB_URL = 'http://fias.nalog.ru/Public/Downloads/Actual/fias_xml.rar';
 
     private $transformersClasses = [
         'ACTSTAT'  => ['ActualStatus' => ActualStatus::class],
@@ -81,8 +83,8 @@ class InstallCommand extends AbstractCommand
         $pattern = '/^AS_((DEL_)?[A-Z]+)_\d{8}_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.XML$/';
         $dirName = sys_get_temp_dir().DIRECTORY_SEPARATOR.self::DIR_NAME;
 
-        $this->getFiasService()->downloadFullArchive($dirName);
-        $this->getFiasService()->extractArchive($dirName, $dirName);
+        $this->getFiasService()->downloadFullArchive($dirName, self::FIAS_FULL_DB_FILE, self::FIAS_FULL_DB_URL);
+        $this->getFiasService()->extractArchive($dirName, self::FIAS_FULL_DB_FILE, $dirName);
 
         $files = scandir($dirName, SCANDIR_SORT_NONE);
 

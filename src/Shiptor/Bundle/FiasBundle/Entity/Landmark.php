@@ -122,9 +122,9 @@ class Landmark
     /**
      * @var int
      *
-     * @ORM\Column(name="counter", type="integer", nullable=false)
+     * @ORM\Column(name="cad_num", type="integer", nullable=true)
      */
-    private $counter;
+    private $cadNum;
 
     /**
      * Set location
@@ -487,27 +487,27 @@ class Landmark
     }
 
     /**
-     * Set counter
+     * Set cadNum
      *
-     * @param integer $counter
+     * @param integer $cadNum
      *
      * @return Landmark
      */
-    public function setCounter($counter)
+    public function setCadNum($cadNum)
     {
-        $this->counter = $counter;
+        $this->cadNum = $cadNum;
 
         return $this;
     }
 
     /**
-     * Get counter
+     * Get cadNum
      *
      * @return int
      */
-    public function getCounter()
+    public function getCadNum()
     {
-        return $this->counter;
+        return $this->cadNum;
     }
 }
 
