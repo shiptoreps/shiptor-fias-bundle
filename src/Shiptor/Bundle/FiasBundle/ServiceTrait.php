@@ -3,6 +3,7 @@ namespace Shiptor\Bundle\FiasBundle;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Doctrine\ORM\EntityManager;
+use Doctrine\Bundle\DoctrineBundle\Registry;
 
 /**
  * @property ContainerInterface $container
@@ -37,5 +38,13 @@ trait ServiceTrait
     protected function getEm()
     {
         return $this->getDoctrine()->getManager();
+    }
+
+    /**
+     * @return \Symfony\Bridge\Monolog\Logger
+     */
+    protected function getLogger()
+    {
+        return $this->container->get('logger');
     }
 }

@@ -27,6 +27,9 @@ class UpdateListCommand extends AbstractCommand
 
     const XML_TAG_DOWNLOAD_FILE_INFO = 'DownloadFileInfo';
 
+    /** @var  \SoapClient */
+    private $client;
+
     protected function configure()
     {
         $this
@@ -46,12 +49,12 @@ class UpdateListCommand extends AbstractCommand
     {
         $response = $this->fiasGetUpdatesApiCall();
 
-        if (!isset($response) && !isset($response['response']) && $response['code'] !== 200) {
+        if (empty($response)) {
             throw new InvalidParameterException('Missing expected response.');
         }
 
         $dir = sys_get_temp_dir().DIRECTORY_SEPARATOR.self::FIAS_UPDATE_DIR;
-        $this->saveAsXML($response['response'], $dir, self::FIAS_UPDATE_FILE);
+        $this->saveAsXML($response, $dir, self::FIAS_UPDATE_FILE);
 
         $reader = new XMLReader();
         $reader->open($dir.DIRECTORY_SEPARATOR.self::FIAS_UPDATE_FILE);
@@ -86,7 +89,7 @@ class UpdateListCommand extends AbstractCommand
     }
 
     /**
-     * @return array
+     * @return string
      */
     protected function fiasGetUpdatesApiCall()
     {
@@ -98,31 +101,11 @@ class UpdateListCommand extends AbstractCommand
               </soap12:Body>
             </soap12:Envelope>';
 
-        $headers = [
-            'Host: fias.nalog.ru',
-            'Content-Type: text/xml; charset=utf-8',
-            'Content-Length: '.strlen($arguments),
-            'SOAPAction: '.self::FIAS_UPDATE_URL.'/'.self::FIAS_GET_ALL_DOWNLOAD_FILE_INFO,
-        ];
+        $this->getSoapClient(self::FIAS_UPDATE_URL.'?wsdl', ['trace' => TRUE]);
 
-        $ch = curl_init(self::FIAS_UPDATE_URL);
+        $this->client->__soapCall(self::FIAS_GET_ALL_DOWNLOAD_FILE_INFO, array($arguments));
 
-        curl_setopt_array($ch, [
-            CURLOPT_POST           => true,
-            CURLOPT_HEADER         => false,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER     => $headers,
-            CURLOPT_POSTFIELDS     => $arguments,
-        ]);
-
-        $response = curl_exec($ch);
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        return [
-            'response' => $response,
-            'code'     => $httpcode,
-        ];
+        return $this->client->__getLastResponse();
     }
 
     /**
@@ -139,8 +122,19 @@ class UpdateListCommand extends AbstractCommand
         fclose($file);
 
         if (!file_exists($dir.DIRECTORY_SEPARATOR.$fileName)) {
-            throw new InvalidParameterException($dir.DIRECTORY_SEPARATOR.$fileName.' file does not exists');
+            throw new InvalidParameterException($dir.DIRECTORY_SEPARATOR.$fileName.' file could not be created.');
         }
+    }
+
+    /**
+     * @param string $host
+     * @return \SoapClient
+     */
+    public function getSoapClient($host, $options = null)
+    {
+        $this->client = new \SoapClient($host, $options);
+
+        return $this->client;
     }
 
     /**

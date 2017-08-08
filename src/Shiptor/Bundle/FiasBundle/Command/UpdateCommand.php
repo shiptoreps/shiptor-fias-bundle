@@ -35,15 +35,15 @@ class UpdateCommand extends AbstractCommand
     const FIAS_UPDATE_FILE = 'fias_updat_';
 
     private $transformersClasses = [
-//        'ACTSTAT'  => ['ActualStatus' => ActualStatus::class],
-//        'ADDROBJ'  => ['Object' => AddressObject::class],
-//        'CENTERST' => ['CenterStatus' => CenterStatus::class],
-//        'CURENTST' => ['CurrentStatus' => CurrentStatus::class],
-//        'ESTSTAT'  => ['EstateStatus' => EstateStatus::class],
-//        'HOUSE'    => ['House' => House::class],
-//        'HOUSEINT' => ['HouseInterval' => HouseInterval::class],
-//        'HSTSTAT'  => ['HouseStateStatus' => HouseStateStatus::class],
-//        'INTVSTAT' => ['IntervalStatus' => IntervalStatus::class],
+        'ACTSTAT'  => ['ActualStatus' => ActualStatus::class],
+        'ADDROBJ'  => ['Object' => AddressObject::class],
+        'CENTERST' => ['CenterStatus' => CenterStatus::class],
+        'CURENTST' => ['CurrentStatus' => CurrentStatus::class],
+        'ESTSTAT'  => ['EstateStatus' => EstateStatus::class],
+        'HOUSE'    => ['House' => House::class],
+        'HOUSEINT' => ['HouseInterval' => HouseInterval::class],
+        'HSTSTAT'  => ['HouseStateStatus' => HouseStateStatus::class],
+        'INTVSTAT' => ['IntervalStatus' => IntervalStatus::class],
         'LANDMARK' => ['Landmark' => Landmark::class],
         'NORMDOC'  => ['NormativeDocument' => NormativeDocument::class],
         'OPERSTAT' => ['OperationStatus' => OperationStatus::class],
@@ -85,7 +85,7 @@ class UpdateCommand extends AbstractCommand
             $dirName = sys_get_temp_dir().DIRECTORY_SEPARATOR.self::FIAS_UPDATE_DIR.$item->getVersionId();
             $fileName = self::FIAS_UPDATE_FILE.$item->getVersionId().self::FILE_EXTENTION;
 
-            if ($this->getFiasService()->downloadFullArchive($dirName, $fileName, $item->getFiasDeltaXmlUrl())) {
+            if ($this->getFiasService()->downloadArchive($dirName, $fileName, $item->getFiasDeltaXmlUrl())) {
                 $this->getFiasService()->extractArchive($dirName, $fileName, $dirName);
             }
 

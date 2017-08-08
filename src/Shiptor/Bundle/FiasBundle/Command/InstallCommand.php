@@ -80,58 +80,13 @@ class InstallCommand extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $pattern = '/^AS_((DEL_)?[A-Z]+)_\d{8}_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.XML$/';
         $dirName = sys_get_temp_dir().DIRECTORY_SEPARATOR.self::DIR_NAME;
 
-        $this->getFiasService()->downloadFullArchive($dirName, self::FIAS_FULL_DB_FILE, self::FIAS_FULL_DB_URL);
-        $this->getFiasService()->extractArchive($dirName, self::FIAS_FULL_DB_FILE, $dirName);
-
-        $files = scandir($dirName, SCANDIR_SORT_NONE);
-
-        foreach ($files as $file) {
-            $matches = [];
-
-            if (preg_match($pattern, $file, $matches)) {
-                if (!isset($this->transformersClasses[$matches[1]])) {
-                    $output->writeln('Have no function to process '.$file.'.');
-
-                    continue;
-                }
-
-                $reader = new XMLReader();
-                $reader->open($dirName.DIRECTORY_SEPARATOR.$file);
-
-                while ($reader->read()) {
-                    foreach ($this->transformersClasses[$matches[1]] as $tag => $class) {
-                        if ($reader->name === $tag && $reader->nodeType === XMLReader::ELEMENT) {
-                            $converter = new AttributeConverter(new $class());
-                            $objectNormalizer = new ObjectNormalizer(null, $converter);
-                            $serializer = new Serializer([$objectNormalizer], [new XmlEncoder()]);
-
-                            $entity = $serializer->deserialize($reader->readOuterXml(), $class, 'xml');
-
-                            DateTimeNormalizer::normalize($entity);
-
-                            $this->getEm()->persist($entity);
-
-                            $output->writeln($tag."  -----    ".$class);
-
-                            unset($entity);
-                        }
-
-                        unset($tag);
-                        unset($class);
-                    }
-                }
-
-                $this->getEm()->flush();
-                $this->getEm()->clear();
-
-                $reader->close();
-
-                unset($reader);
-            }
+        if ($this->getFiasService()->downloadArchive($dirName, self::FIAS_FULL_DB_FILE, self::FIAS_FULL_DB_URL)) {
+            $this->getFiasService()->extractArchive($dirName, self::FIAS_FULL_DB_FILE, $dirName);
         }
+
+        $this->getFiasService()->saveXmlToDb($dirName, $this->transformersClasses, $output);
 
         return 0;
     }

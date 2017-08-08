@@ -25,7 +25,7 @@ class FiasService extends AbstractService
      *
      * @return bool
      */
-    public function downloadFullArchive($destination, $fileName, $url)
+    public function downloadArchive($destination, $fileName, $url)
     {
         $this->makeDir($destination);
         try {
@@ -38,8 +38,7 @@ class FiasService extends AbstractService
             }
 
             if (!$match) {
-                dump($exception->getMessage());
-                exit;
+                $this->getLogger()->addError($exception->getMessage(), ['exception' => $exception]);
             }
 
             return false;
