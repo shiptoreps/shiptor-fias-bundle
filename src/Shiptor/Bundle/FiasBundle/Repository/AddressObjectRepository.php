@@ -52,4 +52,14 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
 
         return $query->getQuery();
     }
+
+    public function getNextId($id)
+    {
+        return $this
+            ->createQueryBuilder('ao')
+            ->andWhere('ao.nextId IS NOT NULL')
+            ->andWhere('ao.aoId = :id')
+            ->setParameter('id', $id)
+        ;
+    }
 }

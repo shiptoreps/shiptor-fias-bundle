@@ -6,6 +6,7 @@ use Moriony\RpcServer\Request\RpcRequestInterface;
 use Shiptor\Bundle\FiasBundle\AbstractService;
 use Shiptor\Bundle\FiasBundle\Entity\AddressObject;
 use Shiptor\Bundle\FiasBundle\Exception\BasicException;
+use Shiptor\Bundle\FiasBundle\Repository\AddressObjectRepository;
 use Shiptor\Bundle\FiasBundle\Service\PagerService;
 
 /**
@@ -71,6 +72,41 @@ class FiasApiService extends AbstractService
 
         return [
             'pager' => $pager,
+        ];
+    }
+
+    /**
+     * @param RpcRequestInterface $request
+     * @return array
+     */
+    public function getAddressByUUID(RpcRequestInterface $request)
+    {
+        $aoId = $request->get('aoId');
+
+        /** @var AddressObjectRepository $repo */
+        $repo = $this
+            ->getDoctrine()
+            ->getRepository('ShiptorFiasBundle:AddressObject')
+        ;
+
+        $nextID = $aoId;
+
+        do {
+            /** @var AddressObject $result */
+            $result = $repo
+                ->getNextId($nextID)
+                ->getQuery()
+                ->getOneOrNullResult();
+
+            if (null === $result->getNextId()) {
+                break;
+            }
+
+            $nextID = $result->getNextId()->serialize();
+        } while($result);
+
+        return [
+            'plainCode' => ($result)?$result->getPlainCode():null,
         ];
     }
 }
