@@ -2,6 +2,12 @@ services:
   shiptor_fias.service.fias:
     class: Shiptor\Bundle\FiasBundle\Service\FiasService
     arguments: [ "@service_container" ]
+  shiptor_fias.service.fias_api:
+    class: Shiptor\Bundle\FiasBundle\Service\Api\FiasApiService
+    arguments: [ "@service_container" ]
+  shiptor_fias.service.pager:
+        class:     Shiptor\Bundle\FiasBundle\Service\PagerService
+        arguments: []
   # Http + Rpc Client
   guzzle.client:
       class: GuzzleHttp\Client

@@ -47,4 +47,12 @@ trait ServiceTrait
     {
         return $this->container->get('logger');
     }
+
+    /**
+     * @return \Shiptor\Bundle\FiasBundle\Service\PagerService
+     */
+    protected function getPagerService()
+    {
+        return $this->container->get('shiptor_fias.service.pager');
+    }
 }
