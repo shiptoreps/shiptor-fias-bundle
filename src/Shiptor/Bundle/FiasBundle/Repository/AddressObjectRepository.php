@@ -51,7 +51,6 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
     {
         return $this
             ->createQueryBuilder('ao')
-            ->andWhere('ao.nextId IS NOT NULL')
             ->andWhere('ao.aoId = :id')
             ->setParameter('id', $id)
         ;
