@@ -26,6 +26,10 @@ class FiasApiService extends AbstractService
         $limit = $request->get('limit');
         $type = $request->get('type');
 
+        if (!in_array($type, AddressObject::DIV_TYPE_RANGE)) {
+            $type = null;
+        }
+
         $query = $this
             ->getDoctrine()
             ->getRepository('ShiptorFiasBundle:AddressObject')
