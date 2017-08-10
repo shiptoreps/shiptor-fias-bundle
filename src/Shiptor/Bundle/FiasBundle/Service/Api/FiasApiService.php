@@ -25,20 +25,15 @@ class FiasApiService extends AbstractService
         $page = $request->get('page');
         $limit = $request->get('limit');
         $actual = $request->get('actual');
-        $type = $request->get('type');
 
-        $query = $this->getDoctrine()->getRepository('ShiptorFiasBundle:AddressObject')->getPageQuery($actual, $type);
+        $query = $this->getDoctrine()->getRepository('ShiptorFiasBundle:AddressObject')->getPageQuery($actual, AddressObject::STATUS_ACTUAL);
 
-        try {
-            /** @var AddressObject[] $pager */
-            $pager = $this->getPagerService()->getPagerByQueryBuilder($query, [
-                PagerService::OPT_PAGE           => $page,
-                PagerService::OPT_PER_PAGE       => $limit,
-                PagerService::OPT_PER_PAGE_LIMIT => $limit,
-            ]);
-        } catch (BasicException $e) {
-            return $e->getMessage();
-        }
+        /** @var AddressObject[] $pager */
+        $pager = $this->getPagerService()->getPagerByQueryBuilder($query, [
+            PagerService::OPT_PAGE           => $page,
+            PagerService::OPT_PER_PAGE       => $limit,
+            PagerService::OPT_PER_PAGE_LIMIT => $limit,
+        ]);
 
         return [
             'pager' => $pager,
@@ -59,16 +54,12 @@ class FiasApiService extends AbstractService
 
         $query = $this->getDoctrine()->getRepository('ShiptorFiasBundle:AddressObject')->getPageQuery(null, null, $date);
 
-        try {
-            /** @var AddressObject[] $pager */
-            $pager = $this->getPagerService()->getPagerByQueryBuilder($query, [
-                PagerService::OPT_PAGE           => $page,
-                PagerService::OPT_PER_PAGE       => $limit,
-                PagerService::OPT_PER_PAGE_LIMIT => $limit,
-            ]);
-        } catch (BasicException $e) {
-            return $e->getMessage();
-        }
+        /** @var AddressObject[] $pager */
+        $pager = $this->getPagerService()->getPagerByQueryBuilder($query, [
+            PagerService::OPT_PAGE           => $page,
+            PagerService::OPT_PER_PAGE       => $limit,
+            PagerService::OPT_PER_PAGE_LIMIT => $limit,
+        ]);
 
         return [
             'pager' => $pager,

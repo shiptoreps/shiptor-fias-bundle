@@ -13,6 +13,9 @@ use Ramsey\Uuid\Uuid;
  */
 class AddressObject
 {
+    const STATUS_NOT_ACTUAL = 0;
+    const STATUS_ACTUAL = 1;
+
     /**
      * @var Uuid
      *
