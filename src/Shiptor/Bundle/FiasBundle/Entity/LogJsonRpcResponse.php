@@ -5,7 +5,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table(name="log.json_rpc_response")
- * @ORM\Entity(repositoryClass="ShiptorRussiaBundle\Repository\LogJsonRpcResponseRepository")
+ * @ORM\Entity(repositoryClass="Shiptor\Bundle\FiasBundle\Repository\LogJsonRpcResponseRepository")
  */
 class LogJsonRpcResponse
 {
@@ -38,7 +38,7 @@ class LogJsonRpcResponse
     /**
      * @var LogJsonRpcRequest
      *
-     * @ORM\OneToOne(targetEntity="\ShiptorRussiaBundle\Entity\LogJsonRpcRequest", inversedBy="response")
+     * @ORM\OneToOne(targetEntity="\Shiptor\Bundle\FiasBundle\Entity\LogJsonRpcRequest", inversedBy="response")
      * @ORM\JoinColumn(name="request_id", referencedColumnName="id")
      */
     private $request;
