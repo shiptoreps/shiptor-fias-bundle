@@ -40,7 +40,7 @@ class FiasApiService extends AbstractService
             ]);
         } catch (BasicException $exception) {
             return [
-                'pager' => $exception->getMessage(),
+                'error' => $exception->getMessage(),
             ];
         }
 
@@ -74,7 +74,7 @@ class FiasApiService extends AbstractService
             ]);
         } catch (BasicException $exception) {
             return [
-                'pager' => null,
+                'error' => $exception->getMessage(),
             ];
         }
 
