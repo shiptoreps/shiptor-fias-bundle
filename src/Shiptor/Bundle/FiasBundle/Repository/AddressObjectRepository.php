@@ -44,10 +44,6 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
                 ->setParameter('type', $type);
         }
 
-        if (null !== $limit) {
-            $query->setMaxResults($limit);
-        }
-
         return $query->getQuery();
     }
 

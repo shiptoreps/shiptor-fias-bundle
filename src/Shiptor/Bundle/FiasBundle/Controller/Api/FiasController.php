@@ -28,7 +28,7 @@ class FiasController extends AbstractController
         /** @var JsonRpcProtocol $protocol */
         $protocol = $this->container->get('rpc_server.json_rpc_protocol');
         $server = new RpcServer($protocol);
-        $server->getEventDispatcher()->addSubscriber(new JsonRpcLogSubscriber($this->getDoctrine()));
+//        $server->getEventDispatcher()->addSubscriber(new JsonRpcLogSubscriber($this->getDoctrine()));
         $server->getEventDispatcher()->addSubscriber(new ExceptionLogSubscriber($this->getLogger()));
         $server->getEventDispatcher()->addSubscriber(new GetParamAuthenticationSubscriber($this->container->getParameter('fias_api.key')));
 
