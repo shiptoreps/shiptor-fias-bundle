@@ -26,7 +26,10 @@ class FiasApiService extends AbstractService
         $limit = $request->get('limit');
         $actual = $request->get('actual');
 
-        $query = $this->getDoctrine()->getRepository('ShiptorFiasBundle:AddressObject')->getPageQuery($actual, AddressObject::STATUS_ACTUAL);
+        $query = $this
+            ->getDoctrine()
+            ->getRepository('ShiptorFiasBundle:AddressObject')
+            ->getPageQuery($actual, AddressObject::STATUS_ACTUAL);
 
         /** @var AddressObject[] $pager */
         $pager = $this->getPagerService()->getPagerByQueryBuilder($query, [
@@ -52,7 +55,9 @@ class FiasApiService extends AbstractService
         $limit = $request->get('limit');
         $date = $request->get('date');
 
-        $query = $this->getDoctrine()->getRepository('ShiptorFiasBundle:AddressObject')->getPageQuery(null, null, $date);
+        $query = $this->getDoctrine()
+            ->getRepository('ShiptorFiasBundle:AddressObject')
+            ->getPageQuery(null, null, $date);
 
         /** @var AddressObject[] $pager */
         $pager = $this->getPagerService()->getPagerByQueryBuilder($query, [
