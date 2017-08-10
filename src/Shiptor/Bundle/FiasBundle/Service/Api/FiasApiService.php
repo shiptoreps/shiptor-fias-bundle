@@ -3,6 +3,7 @@ namespace Shiptor\Bundle\FiasBundle\Service\Api;
 
 use Moriony\RpcServer\Exception\InvalidParamException;
 use Moriony\RpcServer\Request\RpcRequestInterface;
+use Moriony\RpcServer\Response\JsonRpcResponse;
 use Shiptor\Bundle\FiasBundle\AbstractService;
 use Shiptor\Bundle\FiasBundle\Entity\AddressObject;
 use Shiptor\Bundle\FiasBundle\Exception\BasicException;
@@ -26,7 +27,7 @@ class FiasApiService extends AbstractService
         $limit = $request->get('limit');
         $type = $request->get('type');
 
-        if (!in_array($type, AddressObject::DIV_TYPE_RANGE)) {
+        if (!is_numeric($type) || !in_array($type, AddressObject::DIV_TYPE_RANGE)) {
             $type = null;
         }
 
@@ -48,9 +49,20 @@ class FiasApiService extends AbstractService
             ];
         }
 
-        return [
-            'pager' => $pager,
+        $result = [
+            'count' => $pager->count(),
+            'page' => $pager->getCurrentPage(),
+            'per_page' => $pager->getMaxPerPage(),
+            'pages' => $pager->getNbPages(),
+            'addressObjects' => [],
         ];
+
+        $transformer = $this->container->get('shiptor_fias.service.address_object');
+        foreach ($pager as $settlement) {
+            $result['addressObjects'][] = $transformer->transform($settlement);
+        }
+
+        return $result;
     }
 
     /**
@@ -82,9 +94,20 @@ class FiasApiService extends AbstractService
             ];
         }
 
-        return [
-            'pager' => $pager,
+        $result = [
+            'count' => $pager->count(),
+            'page' => $pager->getCurrentPage(),
+            'per_page' => $pager->getMaxPerPage(),
+            'pages' => $pager->getNbPages(),
+            'addressObjects' => [],
         ];
+
+        $transformer = $this->container->get('shiptor_fias.service.address_object');
+        foreach ($pager as $settlement) {
+            $result['addressObjects'][] = $transformer->transform($settlement);
+        }
+
+        return $result;
     }
 
     /**

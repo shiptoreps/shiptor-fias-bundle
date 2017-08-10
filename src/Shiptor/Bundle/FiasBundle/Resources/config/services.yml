@@ -8,6 +8,8 @@ services:
   shiptor_fias.service.pager:
         class:     Shiptor\Bundle\FiasBundle\Service\PagerService
         arguments: []
+  shiptor_fias.service.address_object:
+        class:     Shiptor\Bundle\FiasBundle\DataTransformer\Api\AddressObjectDataTransformer
   # Http + Rpc Client
   guzzle.client:
       class: GuzzleHttp\Client
