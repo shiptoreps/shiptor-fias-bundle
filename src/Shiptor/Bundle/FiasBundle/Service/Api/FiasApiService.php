@@ -58,8 +58,8 @@ class FiasApiService extends AbstractService
         ];
 
         $transformer = $this->container->get('shiptor_fias.service.address_object');
-        foreach ($pager as $settlement) {
-            $result['addressObjects'][] = $transformer->transform($settlement);
+        foreach ($pager as $addressObject) {
+            $result['addressObjects'][] = $transformer->transform($addressObject);
         }
 
         return $result;
@@ -103,8 +103,8 @@ class FiasApiService extends AbstractService
         ];
 
         $transformer = $this->container->get('shiptor_fias.service.address_object');
-        foreach ($pager as $settlement) {
-            $result['addressObjects'][] = $transformer->transform($settlement);
+        foreach ($pager as $addressObject) {
+            $result['addressObjects'][] = $transformer->transform($addressObject);
         }
 
         return $result;
