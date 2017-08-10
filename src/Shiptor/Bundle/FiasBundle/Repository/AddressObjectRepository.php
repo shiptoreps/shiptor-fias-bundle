@@ -28,7 +28,7 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
 
         if (null !== $date) {
             $query
-                ->andWhere('ao.updateDate <= :date')
+                ->andWhere('ao.updateDate >= :date')
                 ->setParameter('date', $date);
         }
 

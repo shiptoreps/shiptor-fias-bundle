@@ -75,7 +75,7 @@ class FiasApiService extends AbstractService
     {
         $page = $request->get('page');
         $limit = $request->get('limit');
-        $date = $request->get('date');
+        $date = new \DateTime($request->get('date'));
 
         $query = $this->getDoctrine()
             ->getRepository('ShiptorFiasBundle:AddressObject')
