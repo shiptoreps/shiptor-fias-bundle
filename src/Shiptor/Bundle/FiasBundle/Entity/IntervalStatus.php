@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * IntervalStatus
  *
- * @ORM\Table(name="interval_status")
+ * @ORM\Table(name="fias.interval_status")
  * @ORM\Entity(repositoryClass="Shiptor\Bundle\FiasBundle\Repository\IntervalStatusRepository")
  */
 class IntervalStatus

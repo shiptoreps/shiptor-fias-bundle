@@ -8,7 +8,7 @@ use Ramsey\Uuid\Uuid;
 /**
  * Room
  *
- * @ORM\Table(name="room")
+ * @ORM\Table(name="fias.room")
  * @ORM\Entity(repositoryClass="Shiptor\Bundle\FiasBundle\Repository\RoomRepository")
  */
 class Room
@@ -64,6 +64,7 @@ class Room
 
     /**
      * @var Uuid
+     * @ORM\Id
      *
      * @ORM\Column(name="room_id", type="uuid", nullable=false)
      */
@@ -73,7 +74,6 @@ class Room
      * @var Uuid
      *
      * @ORM\Column(name="room_guid", type="uuid", nullable=false)
-     * @ORM\Id
      */
     private $roomGuid;
 
@@ -541,4 +541,3 @@ class Room
         return $this->cadNum;
     }
 }
-

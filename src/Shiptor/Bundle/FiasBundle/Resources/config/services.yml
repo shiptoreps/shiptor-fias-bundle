@@ -1,3 +1,27 @@
 services:
   shiptor_fias.service.fias:
-    class: ShiptorFiasBundle\Service\FiasService
+    class: Shiptor\Bundle\FiasBundle\Service\FiasService
+    arguments: [ "@service_container" ]
+  shiptor_fias.service.fias_api:
+    class: Shiptor\Bundle\FiasBundle\Service\Api\FiasApiService
+    arguments: [ "@service_container" ]
+  shiptor_fias.service.pager:
+        class:     Shiptor\Bundle\FiasBundle\Service\PagerService
+        arguments: []
+  shiptor_fias.service.address_object:
+        class:     Shiptor\Bundle\FiasBundle\DataTransformer\Api\AddressObjectDataTransformer
+  # Http + Rpc Client
+  guzzle.client:
+      class: GuzzleHttp\Client
+  rpc_client.protocol.jsonrpc:
+      class: Moriony\RpcClient\Protocol\JsonRpcProtocol
+  rpc_client.transport.guzzle:
+      class: Moriony\RpcClient\Transport\GuzzleTransport
+      arguments: [ "@guzzle.client" ]
+  rpc_client.client:
+      class: Moriony\RpcClient\Client
+      arguments:
+          -
+              protocols:
+                  jsonrpc: "@rpc_client.protocol.jsonrpc"
+              transport: "@rpc_client.transport.guzzle"

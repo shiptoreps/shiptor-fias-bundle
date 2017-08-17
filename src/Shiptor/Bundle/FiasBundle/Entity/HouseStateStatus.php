@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * HouseStateStatus
  *
- * @ORM\Table(name="house_state_status")
+ * @ORM\Table(name="fias.house_state_status")
  * @ORM\Entity(repositoryClass="Shiptor\Bundle\FiasBundle\Repository\HouseStateStatusRepository")
  */
 class HouseStateStatus

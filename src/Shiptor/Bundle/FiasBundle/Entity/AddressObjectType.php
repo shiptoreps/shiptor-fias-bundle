@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * AddressObjectType
  *
- * @ORM\Table(name="address_object_type")
+ * @ORM\Table(name="fias.address_object_type")
  * @ORM\Entity(repositoryClass="Shiptor\Bundle\FiasBundle\Repository\AddressObjectTypeRepository")
  */
 class AddressObjectType
@@ -36,7 +36,7 @@ class AddressObjectType
     /**
      * @var string
      *
-     * @ORM\Column(name="kod_ts_t", type="string", length=4, nullable=false)
+     * @ORM\Column(name="kod_t_st", type="string", length=4, nullable=false)
      * @ORM\Id
      */
     private $kodTsT;

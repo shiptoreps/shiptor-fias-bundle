@@ -8,7 +8,7 @@ use Ramsey\Uuid\Uuid;
 /**
  * HouseInterval
  *
- * @ORM\Table(name="house_interval")
+ * @ORM\Table(name="fias.house_interval")
  * @ORM\Entity(repositoryClass="Shiptor\Bundle\FiasBundle\Repository\HouseIntervalRepository")
  */
 class HouseInterval
@@ -85,6 +85,7 @@ class HouseInterval
 
     /**
      * @var Uuid
+     * @ORM\Id
      *
      * @ORM\Column(name="house_int_id", type="uuid", nullable=false)
      */
@@ -94,7 +95,6 @@ class HouseInterval
      * @var Uuid
      *
      * @ORM\Column(name="int_guid", type="uuid", nullable=false)
-     * @ORM\Id
      */
     private $intGuid;
 

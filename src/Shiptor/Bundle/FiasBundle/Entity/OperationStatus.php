@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * OperationStatus
  *
- * @ORM\Table(name="operation_status")
+ * @ORM\Table(name="fias.operation_status")
  * @ORM\Entity(repositoryClass="Shiptor\Bundle\FiasBundle\Repository\OperationStatusRepository")
  */
 class OperationStatus

@@ -8,7 +8,7 @@ use Ramsey\Uuid\Uuid;
 /**
  * NormativeDocument
  *
- * @ORM\Table(name="normative_document")
+ * @ORM\Table(name="fias.normative_document")
  * @ORM\Entity(repositoryClass="Shiptor\Bundle\FiasBundle\Repository\NormativeDocumentRepository")
  */
 class NormativeDocument
