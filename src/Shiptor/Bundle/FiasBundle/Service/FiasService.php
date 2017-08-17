@@ -95,6 +95,10 @@ class FiasService extends AbstractService
 
         $files = scandir($scanDir, SCANDIR_SORT_NONE);
 
+        $counter = 1;
+
+        $serializers = [];
+
         foreach ($files as $file) {
             $matches = [];
 
@@ -105,23 +109,39 @@ class FiasService extends AbstractService
                     continue;
                 }
 
+                foreach ($transformersClasses[$matches[1]] as $tag => $class) {
+                    $converter = new AttributeConverter(new $class());
+                    $objectNormalizer = new ObjectNormalizer(null, $converter);
+                    $serializer = new Serializer([$objectNormalizer], [new XmlEncoder()]);
+                    $serializers[$tag] = $serializer;
+
+                    unset($serializer);
+                    unset($objectNormalizer);
+                    unset($converter);
+                    unset($tag);
+                    unset($class);
+                }
+
                 $reader = new XMLReader();
                 $reader->open($scanDir.DIRECTORY_SEPARATOR.$file);
 
                 while ($reader->read()) {
                     foreach ($transformersClasses[$matches[1]] as $tag => $class) {
                         if ($reader->name === $tag && $reader->nodeType === XMLReader::ELEMENT) {
-                            $converter = new AttributeConverter(new $class());
-                            $objectNormalizer = new ObjectNormalizer(null, $converter);
-                            $serializer = new Serializer([$objectNormalizer], [new XmlEncoder()]);
-
-                            $entity = $serializer->deserialize($reader->readOuterXml(), $class, 'xml');
+                            $entity = $serializers[$tag]->deserialize($reader->readOuterXml(), $class, 'xml');
 
                             DateTimeNormalizer::normalize($entity);
 
                             $this->getEm()->merge($entity);
 
-                            $output->writeln($tag."  -----    ".$class);
+                            if ($counter % 20000 == 0) {
+                                $this->getEm()->flush();
+                                $this->getEm()->clear();
+
+                                $output->writeln($tag." --- ".$class." -- ".$counter);
+                            }
+
+                            $counter++;
 
                             unset($entity);
                         }
