@@ -14,14 +14,13 @@ class AddressObjectType
 {
     /**
      * @var int
-     *
+     * @ORM\Id()
      * @ORM\Column(name="level", type="integer", nullable=false)
      */
     private $level;
 
     /**
      * @var string
-     *
      * @ORM\Column(name="sc_name", type="string", length=10, nullable=true)
      */
     private $scName;
@@ -35,9 +34,9 @@ class AddressObjectType
 
     /**
      * @var string
+     * @ORM\Id()
      *
      * @ORM\Column(name="kod_t_st", type="string", length=4, nullable=false)
-     * @ORM\Id
      */
     private $kodTsT;
 
@@ -137,4 +136,3 @@ class AddressObjectType
         return $this->kodTsT;
     }
 }
-
