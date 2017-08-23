@@ -46,6 +46,10 @@ class FiasController extends AbstractController
                     'service' => 'shiptor_fias.service.fias_api',
                     'method' => 'getAddressByUUID',
                 ],
+                'getGroupedActualAddresses' => [
+                    'service' => 'shiptor_fias.service.fias_api',
+                    'method' => 'getGroupedActualAddresses',
+                ],
             ],
         ]));
 

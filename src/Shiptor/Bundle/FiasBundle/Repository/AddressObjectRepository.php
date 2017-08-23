@@ -15,6 +15,40 @@ use Shiptor\Bundle\FiasBundle\Entity\AddressObjectType;
 class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
 {
     /**
+     * @param int|null $actual
+     * @param int      $offset
+     * @param int|null $limit
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    public function getGroupedAddresses($actual = null, $offset = 0, $limit = null)
+    {
+        $query = $this
+            ->createQueryBuilder('ao')
+            ->select('ao.postalCode')
+            ->where('ao.postalCode IS NOT NULL')
+            ->groupBy('ao.postalCode')
+            ->orderBy('ao.postalCode', 'ASC');
+
+        if (null !== $actual) {
+            $query
+                ->andWhere('ao.actStatus = :actual')
+                ->setParameter('actual', $actual);
+        }
+
+        if (null !== $limit) {
+            if ($limit > 100000) {
+                $limit = 100000;
+            }
+
+            $query
+                ->setFirstResult($offset)
+                ->setMaxResults($limit);
+        }
+
+        return $query;
+    }
+
+    /**
      * @param \DateTime|null $date
      * @param boolean|null   $actual
      * @param integer|null   $offset
@@ -31,8 +65,7 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
             ->where('ao.shortName = objectType.scName')
             ->andWhere('LENGTH(ao.plainCode) <= 11')
             ->orderBy('ao.aoLevel', 'ASC')
-            ->addOrderBy('ao.aoId', 'DESC')
-        ;
+            ->addOrderBy('ao.aoId', 'DESC');
 
         if (null !== $date) {
             $query
@@ -59,8 +92,7 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
 
             $query
                 ->setFirstResult($offset)
-                ->setMaxResults($limit)
-            ;
+                ->setMaxResults($limit);
         }
 
         return $query;
@@ -77,8 +109,7 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
         $query = $this
             ->createQueryBuilder('ao')
             ->orderBy('ao.updateDate', 'DESC')
-            ->addOrderBy('ao.aoId', 'DESC')
-        ;
+            ->addOrderBy('ao.aoId', 'DESC');
 
         if (null !== $date) {
             $query
@@ -106,7 +137,6 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
         return $this
             ->createQueryBuilder('ao')
             ->andWhere('ao.aoId = :id')
-            ->setParameter('id', $id)
-        ;
+            ->setParameter('id', $id);
     }
 }

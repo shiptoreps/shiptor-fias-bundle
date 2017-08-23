@@ -24,6 +24,26 @@ class FiasApiService extends AbstractService
      * @throws InvalidParamException
      * @throws \Exception
      */
+    public function getGroupedActualAddresses(RpcRequestInterface $request)
+    {
+        $offset = $request->get('offset', 0);
+        $limit = $request->get('limit', 1);
+
+        return $this
+            ->getDoctrine()
+            ->getRepository('ShiptorFiasBundle:AddressObject')
+            ->getGroupedAddresses(AddressObject::STATUS_ACTUAL, $offset, $limit)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+    /**
+     * @param RpcRequestInterface $request
+     * @return array
+     * @throws InvalidParamException
+     * @throws \Exception
+     */
     public function getActualAddresses(RpcRequestInterface $request)
     {
         $offset = $request->get('offset', 0);
