@@ -10,6 +10,8 @@ services:
         arguments: []
   shiptor_fias.service.address_object:
         class:     Shiptor\Bundle\FiasBundle\DataTransformer\Api\AddressObjectDataTransformer
+  shiptor_fias.service.address_object_type:
+        class:     Shiptor\Bundle\FiasBundle\DataTransformer\Api\AddressObjectTypeDataTransformer
   # Http + Rpc Client
   guzzle.client:
       class: GuzzleHttp\Client

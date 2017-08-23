@@ -16,14 +16,14 @@ class Stead
     /**
      * @var string
      *
-     * @ORM\Column(name="number", type="string", length=250, nullable=false)
+     * @ORM\Column(name="number", type="string", length=250, nullable=true)
      */
     private $number;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="postal_code", type="string", length=6, nullable=false)
+     * @ORM\Column(name="postal_code", type="string", length=6, nullable=true)
      */
     private $postalCode;
 
@@ -101,7 +101,7 @@ class Stead
     /**
      * @var Uuid
      *
-     * @ORM\Column(name="parent_guid", type="uuid", nullable=false)
+     * @ORM\Column(name="parent_guid", type="uuid", nullable=true)
      */
     private $parentGuid;
 

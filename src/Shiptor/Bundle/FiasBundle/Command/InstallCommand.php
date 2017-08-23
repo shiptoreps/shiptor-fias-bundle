@@ -52,8 +52,6 @@ class InstallCommand extends AbstractCommand
         'STRSTAT'  => ['StructureStatus' => StructureStatus::class],
     ];
 
-    private $transformers = [];
-
     /**
      * @return void
      */

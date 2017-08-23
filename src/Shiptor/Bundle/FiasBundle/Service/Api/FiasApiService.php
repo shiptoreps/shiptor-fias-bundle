@@ -4,11 +4,14 @@ namespace Shiptor\Bundle\FiasBundle\Service\Api;
 use Moriony\RpcServer\Exception\InvalidParamException;
 use Moriony\RpcServer\Request\RpcRequestInterface;
 use Moriony\RpcServer\Response\JsonRpcResponse;
+use Pagerfanta\Pagerfanta;
 use Shiptor\Bundle\FiasBundle\AbstractService;
 use Shiptor\Bundle\FiasBundle\Entity\AddressObject;
+use Shiptor\Bundle\FiasBundle\Entity\AddressObjectType;
 use Shiptor\Bundle\FiasBundle\Exception\BasicException;
 use Shiptor\Bundle\FiasBundle\Repository\AddressObjectRepository;
 use Shiptor\Bundle\FiasBundle\Service\PagerService;
+use Symfony\Component\DependencyInjection\Exception\ParameterNotFoundException;
 
 /**
  * Class FiasApi
@@ -17,49 +20,39 @@ class FiasApiService extends AbstractService
 {
     /**
      * @param RpcRequestInterface $request
-     * @return array | string
+     * @return array
      * @throws InvalidParamException
      * @throws \Exception
      */
     public function getActualAddresses(RpcRequestInterface $request)
     {
-        $page = $request->get('page');
-        $limit = $request->get('limit');
+        $offset = $request->get('offset', 0);
+        $limit = $request->get('limit', 1);
         $type = $request->get('type');
 
         if (!is_numeric($type) || !in_array($type, AddressObject::DIV_TYPE_RANGE)) {
             $type = null;
         }
 
-        $query = $this
+        $data = $this
             ->getDoctrine()
             ->getRepository('ShiptorFiasBundle:AddressObject')
-            ->getPageQuery(AddressObject::STATUS_ACTUAL, $type);
+            ->getAddressObject(AddressObject::STATUS_ACTUAL, $type, null, $offset, $limit)
+            ->getQuery()
+            ->getResult()
+        ;
 
-        try {
-            /** @var AddressObject[] $pager */
-            $pager = $this->getPagerService()->getPagerByQueryBuilder($query, [
-                PagerService::OPT_PAGE           => $page,
-                PagerService::OPT_PER_PAGE       => $limit,
-                PagerService::OPT_PER_PAGE_LIMIT => $limit,
-            ]);
-        } catch (BasicException $exception) {
-            return [
-                'error' => $exception->getMessage(),
-            ];
-        }
+        $result = [];
+        $addressObjectTransformer = $this->container->get('shiptor_fias.service.address_object');
+        $addressObjectTypeTransformer = $this->container->get('shiptor_fias.service.address_object_type');
+        foreach ($data as $key => $item) {
+            if ($item instanceof AddressObject) {
+                $result[$key]['addressObjects'] = $addressObjectTransformer->transform($item);
+            }
 
-        $result = [
-            'count' => $pager->count(),
-            'page' => $pager->getCurrentPage(),
-            'per_page' => $pager->getMaxPerPage(),
-            'pages' => $pager->getNbPages(),
-            'addressObjects' => [],
-        ];
-
-        $transformer = $this->container->get('shiptor_fias.service.address_object');
-        foreach ($pager as $addressObject) {
-            $result['addressObjects'][] = $transformer->transform($addressObject);
+            if ($item instanceof AddressObjectType) {
+                $result[$key-1]['addressObjectTypes'] = $addressObjectTypeTransformer->transform($item);
+            }
         }
 
         return $result;
@@ -73,8 +66,8 @@ class FiasApiService extends AbstractService
      */
     public function getAddressesSinceDate(RpcRequestInterface $request)
     {
-        $page = $request->get('page');
-        $limit = $request->get('limit');
+        $page = $request->get('page', 1);
+        $limit = $request->get('limit', 1);
         $date = new \DateTime($request->get('date'));
 
         $query = $this->getDoctrine()
@@ -82,7 +75,7 @@ class FiasApiService extends AbstractService
             ->getPageQuery(null, null, $date);
 
         try {
-            /** @var AddressObject[] $pager */
+            /** @var Pagerfanta $pager */
             $pager = $this->getPagerService()->getPagerByQueryBuilder($query, [
                 PagerService::OPT_PAGE           => $page,
                 PagerService::OPT_PER_PAGE       => $limit,
