@@ -3,6 +3,7 @@
 namespace Shiptor\Bundle\FiasBundle\DataTransformer\Api;
 
 use Shiptor\Bundle\FiasBundle\Entity\AddressObject;
+use Shiptor\Bundle\FiasBundle\Entity\AddressObjectType;
 use Symfony\Component\Form\DataTransformerInterface;
 
 /**
@@ -28,7 +29,7 @@ class AddressObjectDataTransformer implements DataTransformerInterface
                 'formalName' => $addressObject->getFormalName(),
                 'offName' => $addressObject->getOffName(),
                 'shortName' => $addressObject->getShortName(),
-                'aoLevel' => $addressObject->getAoLevel(),
+                'aoLevel' => $this->setAoLevel($addressObject->getAoLevel()),
                 'regionCode' => $addressObject->getRegionCode(),
                 'areaCode' => $addressObject->getAreaCode(),
                 'autoCode' => $addressObject->getAutoCode(),
@@ -71,5 +72,14 @@ class AddressObjectDataTransformer implements DataTransformerInterface
     public function reverseTransform($addressObject)
     {
         throw new \LogicException('Method not implemented.');
+    }
+
+    public function setAoLevel(AddressObjectType $addressObjectType) {
+        return [
+            'level' => $addressObjectType->getLevel(),
+            'socrName' => $addressObjectType->getSocrName(),
+            'scName' => $addressObjectType->getScName(),
+            'kodTsT' => $addressObjectType->getKodTsT(),
+        ];
     }
 }

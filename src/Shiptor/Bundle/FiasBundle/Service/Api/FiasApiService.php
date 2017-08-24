@@ -55,7 +55,7 @@ class FiasApiService extends AbstractService
         }
 
         $data = $this
-            ->getDoctrine()
+            ->getEm()
             ->getRepository('ShiptorFiasBundle:AddressObject')
             ->getAddressObject(AddressObject::STATUS_ACTUAL, $type, null, $offset, $limit)
             ->getQuery()
@@ -64,15 +64,8 @@ class FiasApiService extends AbstractService
 
         $result = [];
         $addressObjectTransformer = $this->container->get('shiptor_fias.service.address_object');
-        $addressObjectTypeTransformer = $this->container->get('shiptor_fias.service.address_object_type');
         foreach ($data as $key => $item) {
-            if ($item instanceof AddressObject) {
-                $result[$key]['addressObjects'] = $addressObjectTransformer->transform($item);
-            }
-
-            if ($item instanceof AddressObjectType) {
-                $result[$key-1]['addressObjectTypes'] = $addressObjectTypeTransformer->transform($item);
-            }
+            $result['addressObjects'][] = $addressObjectTransformer->transform($item);
         }
 
         return $result;
@@ -188,32 +181,23 @@ class FiasApiService extends AbstractService
 
             $addressObject = $addressObjects[0];
 
-            unset($addressObjects);
-
-            while ($addressObject) {
-                /** @var AddressObject[] $addressObjects */
-                $addressObjects = $this
-                    ->getEm()
-                    ->getRepository('ShiptorFiasBundle:AddressObject')
-                    ->createQueryBuilder('ao')
-                    ->where('ao.aoGuid = :aoGuid')
-                    ->andWhere('ao.actStatus = :actStatus')
-                    ->setParameter('aoGuid', $addressObject->getParentGuid())
-                    ->setParameter('actStatus', AddressObject::STATUS_ACTUAL)
-                    ->getQuery()
-                    ->getResult();
-
-                if (empty($addressObjects)) {
-                    $parent[] = $addressObject;
-
-                    break;
-                }
-
-                $addressObject = $addressObjects[0];
+            if (null === $addressObject->getParentGuid()) {
+                // в место $addressObject нужно поставить null
+                $parent[] = $addressObject;
             }
 
-            unset($addressObject);
-            unset($addressObjects);
+            $parents = $this
+                ->getEm()
+                ->getRepository('ShiptorFiasBundle:AddressObject')
+                ->createQueryBuilder('ao')
+                ->where('ao.aoGuid = :aoGuid')
+                ->andWhere('ao.actStatus = :actStatus')
+                ->setParameter('aoGuid', $addressObject->getParentGuid())
+                ->setParameter('actStatus', AddressObject::STATUS_ACTUAL)
+                ->getQuery()
+                ->getResult();
+
+            $parent[] = $parents[0];
         }
 
         $result = [];

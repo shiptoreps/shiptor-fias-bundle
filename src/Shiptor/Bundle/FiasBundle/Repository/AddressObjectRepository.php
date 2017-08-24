@@ -60,8 +60,8 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
     {
         $query = $this
             ->createQueryBuilder('ao')
-            ->select('ao', 'objectType')
-            ->leftJoin(AddressObjectType::class, 'objectType', Join::WITH, 'ao.aoLevel = objectType.level')
+            ->select('ao, objectType')
+            ->leftJoin('ao.aoLevel', 'objectType')
             ->where('ao.shortName = objectType.scName')
             ->andWhere('LENGTH(ao.plainCode) <= 11')
             ->orderBy('ao.aoLevel', 'ASC')
@@ -86,9 +86,9 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
         }
 
         if (null !== $limit) {
-            if ($limit > 100000) {
-                $limit = 100000;
-            }
+//            if ($limit > 100000) {
+//                $limit = 100000;
+//            }
 
             $query
                 ->setFirstResult($offset)

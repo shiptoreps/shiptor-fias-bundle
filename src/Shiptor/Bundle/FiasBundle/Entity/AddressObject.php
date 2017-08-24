@@ -166,9 +166,10 @@ class AddressObject
     private $shortName;
 
     /**
-     * @var int
+     * @var AddressObjectType
      *
-     * @ORM\Column(name="ao_level", type="integer", nullable=false)
+     * @ORM\ManyToOne(targetEntity="AddressObjectType")
+     * @ORM\JoinColumn(name="ao_level", referencedColumnName="level")
      */
     private $aoLevel;
 
@@ -792,7 +793,7 @@ class AddressObject
     /**
      * Set aoLevel
      *
-     * @param integer $aoLevel
+     * @param AddressObjectType $aoLevel
      *
      * @return AddressObject
      */
@@ -806,7 +807,7 @@ class AddressObject
     /**
      * Get aoLevel
      *
-     * @return int
+     * @return AddressObjectType
      */
     public function getAoLevel()
     {

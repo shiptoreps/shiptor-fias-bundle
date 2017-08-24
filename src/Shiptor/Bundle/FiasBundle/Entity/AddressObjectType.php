@@ -34,8 +34,6 @@ class AddressObjectType
 
     /**
      * @var string
-     * @ORM\Id()
-     *
      * @ORM\Column(name="kod_t_st", type="string", length=4, nullable=false)
      */
     private $kodTsT;
