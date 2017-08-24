@@ -86,9 +86,9 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
         }
 
         if (null !== $limit) {
-//            if ($limit > 100000) {
-//                $limit = 100000;
-//            }
+            if ($limit > 100000) {
+                $limit = 100000;
+            }
 
             $query
                 ->setFirstResult($offset)
