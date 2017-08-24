@@ -184,6 +184,8 @@ class FiasApiService extends AbstractService
             if (null === $addressObject->getParentGuid()) {
                 // в место $addressObject нужно поставить null
                 $parent[] = $addressObject;
+
+                continue;
             }
 
             $parents = $this
