@@ -4,6 +4,7 @@ namespace Shiptor\Bundle\FiasBundle\Repository;
 
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\Expr\Join;
+use Shiptor\Bundle\FiasBundle\Entity\AddressObject;
 use Shiptor\Bundle\FiasBundle\Entity\AddressObjectType;
 
 /**
@@ -61,8 +62,9 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
         $query = $this
             ->createQueryBuilder('ao')
             ->select('ao, objectType')
-            ->leftJoin('ao.aoLevel', 'objectType')
+            ->leftJoin('ao.shortName', 'objectType')
             ->where('ao.shortName = objectType.scName')
+            ->andWhere('ao.aoLevel = objectType.level')
             ->andWhere('LENGTH(ao.plainCode) <= 11')
             ->orderBy('ao.aoLevel', 'ASC')
             ->addOrderBy('ao.aoId', 'DESC');
@@ -138,5 +140,96 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
             ->createQueryBuilder('ao')
             ->andWhere('ao.aoId = :id')
             ->setParameter('id', $id);
+    }
+
+    /**
+     * @param $item
+     * @return array
+     */
+    public function findActualAddress($item)
+    {
+        return $this->createQueryBuilder('ao')
+            ->select('ao, objectType')
+            ->leftJoin('ao.shortName', 'objectType')
+            ->where('ao.shortName = objectType.scName')
+            ->andWhere('LENGTH(ao.plainCode) <= 11')
+            ->andWhere('ao.offName = :offName')
+            ->andWhere('ao.aoLevel = :aoLevel')
+            ->andWhere('ao.shortName = :shortName')
+            ->andWhere('ao.plainCode = :plainCode')
+            ->andWhere('ao.actStatus = :actStatus')
+            ->setParameter('offName', $item['offName'])
+            ->setParameter('aoLevel', $item['aoLevel'])
+            ->setParameter('shortName', $item['shortName'])
+            ->setParameter('plainCode', $item['plainCode'])
+            ->setParameter('actStatus', AddressObject::STATUS_ACTUAL)
+            ->orderBy('ao.aoId')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @param int  $offset
+     * @param null $limit
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    public function getAddressParents($offset = 0, $limit = null)
+    {
+        $qb = $this
+            ->createQueryBuilder('ao');
+
+        $query1 = $this
+            ->createQueryBuilder('ao1')
+            ->select('ao1.parentGuid')
+            ->andWhere('LENGTH(ao1.plainCode) <= 11')
+            ->andWhere('ao1.actStatus = :actual')
+            ->setParameter('actual', AddressObject::STATUS_ACTUAL)
+            ->getQuery()
+            ->getDQL();
+
+        $query = $qb
+            ->select('ao, objectType')
+            ->leftJoin('ao.shortName', 'objectType')
+            ->where('ao.shortName = objectType.scName')
+            ->andWhere('ao.aoLevel = objectType.level')
+            ->andWhere('ao.actStatus = :actual')
+            ->andWhere('ao.plainCode IS NULL')
+            ->andWhere($qb->expr()->in('ao.aoGuid', $query1))
+            ->setParameter('actual', AddressObject::STATUS_ACTUAL)
+            ->orderBy('ao.aoLevel', 'ASC')
+            ->addOrderBy('ao.aoId', 'DESC');
+
+        if (null !== $limit) {
+            if ($limit > 100000) {
+                $limit = 100000;
+            }
+
+            $query
+                ->setFirstResult($offset)
+                ->setMaxResults($limit);
+        }
+
+        return $query;
+    }
+
+    public function getParentAddress($actual = null, AddressObject $addressObject)
+    {
+        $qb = $this
+            ->createQueryBuilder('ao');
+
+        $qb = $qb->leftJoin('ao.shortName', 'objectType')
+            ->where('ao.shortName = objectType.scName')
+            ->andWhere($qb->expr()->orX($qb->expr()->lte('LENGTH(ao.plainCode)', 11), $qb->expr()->isNull('ao.plainCode')))
+            ->andWhere('ao.aoGuid = :aoGuid')
+            ->setParameter('aoGuid', $addressObject->getParentGuid())
+            ->orderBy('ao.aoId');
+
+        if( null !== $actual) {
+            $qb
+                ->andWhere('ao.actStatus = :actStatus')
+                ->setParameter('actStatus', AddressObject::STATUS_ACTUAL);
+        }
+
+        return $qb;
     }
 }

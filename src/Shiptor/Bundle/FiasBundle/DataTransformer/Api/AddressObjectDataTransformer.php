@@ -28,8 +28,8 @@ class AddressObjectDataTransformer implements DataTransformerInterface
                 'nextId' => $addressObject->getNextId(),
                 'formalName' => $addressObject->getFormalName(),
                 'offName' => $addressObject->getOffName(),
-                'shortName' => $addressObject->getShortName(),
-                'aoLevel' => $this->setAoLevel($addressObject->getAoLevel()),
+                'shortName' => $this->setShortName($addressObject->getShortName()),
+                'aoLevel' => $addressObject->getAoLevel(),
                 'regionCode' => $addressObject->getRegionCode(),
                 'areaCode' => $addressObject->getAreaCode(),
                 'autoCode' => $addressObject->getAutoCode(),
@@ -74,7 +74,7 @@ class AddressObjectDataTransformer implements DataTransformerInterface
         throw new \LogicException('Method not implemented.');
     }
 
-    public function setAoLevel(AddressObjectType $addressObjectType) {
+    public function setShortName(AddressObjectType $addressObjectType) {
         return [
             'level' => $addressObjectType->getLevel(),
             'socrName' => $addressObjectType->getSocrName(),

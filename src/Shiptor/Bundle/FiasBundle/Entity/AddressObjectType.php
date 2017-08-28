@@ -13,21 +13,21 @@ use Doctrine\ORM\Mapping as ORM;
 class AddressObjectType
 {
     /**
-     * @var int
-     * @ORM\Id()
-     * @ORM\Column(name="level", type="integer", nullable=false)
-     */
-    private $level;
-
-    /**
      * @var string
+     * @ORM\Id()
      * @ORM\Column(name="sc_name", type="string", length=10, nullable=true)
      */
     private $scName;
 
     /**
+     * @var int
+     * @ORM\Column(name="level", type="integer", nullable=false)
+     * @ORM\OrderBy({"kodTsT" = "DESC"})
+     */
+    private $level;
+
+    /**
      * @var string
-     *
      * @ORM\Column(name="socr_name", type="string", length=50, nullable=false)
      */
     private $socrName;

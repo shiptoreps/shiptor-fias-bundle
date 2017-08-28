@@ -19,13 +19,6 @@ class AddressObject
     const DIV_TYPE_RANGE = [0, 1, 2];
 
     /**
-     * @var Uuid
-     *
-     * @ORM\Column(name="ao_guid", type="uuid", nullable=false)
-     */
-    private $aoGuid;
-
-    /**
      * @var string
      *
      * @ORM\Column(name="formal_name", type="string", length=120, nullable=false)
@@ -159,32 +152,37 @@ class AddressObject
     private $updateDate;
 
     /**
-     * @var string
+     * @var AddressObjectType
      *
-     * @ORM\Column(name="short_name", type="string", length=10, nullable=false)
+     * @ORM\ManyToOne(targetEntity="AddressObjectType")
+     * @ORM\JoinColumn(name="short_name", referencedColumnName="sc_name")
      */
     private $shortName;
 
     /**
-     * @var AddressObjectType
+     * @var integer
      *
-     * @ORM\ManyToOne(targetEntity="AddressObjectType")
-     * @ORM\JoinColumn(name="ao_level", referencedColumnName="level")
+     * @ORM\Column(name="ao_level", type="integer", nullable=false)
      */
     private $aoLevel;
 
     /**
      * @var Uuid
-     *
-     * @ORM\Column(name="parent_guid", type="uuid", nullable=true)
+     * @ORM\Column(name="ao_guid", type="uuid", nullable=false)
+     */
+    private $aoGuid;
+
+    /**
+     * @var Uuid
+     * @ORM\Column(name="parent_guid", type="uuid", nullable=false)
      */
     private $parentGuid;
 
     /**
      * @var Uuid
      *
-     * @ORM\Column(name="ao_id", type="uuid", nullable=false)
      * @ORM\Id
+     * @ORM\Column(name="ao_id", type="uuid", nullable=false)
      */
     private $aoId;
 
@@ -196,9 +194,10 @@ class AddressObject
     private $prevId;
 
     /**
-     * @var Uuid
+     * @var AddressObjectType
      *
-     * @ORM\Column(name="next_id", type="uuid", nullable=true)
+     * @ORM\ManyToOne(targetEntity="AddressObject", inversedBy="aoId")
+     * @ORM\JoinColumn(name="next_id", referencedColumnName="ao_id")
      */
     private $nextId;
 
@@ -769,7 +768,7 @@ class AddressObject
     /**
      * Set shortName
      *
-     * @param string $shortName
+     * @param AddressObjectType $shortName
      *
      * @return AddressObject
      */
@@ -783,7 +782,7 @@ class AddressObject
     /**
      * Get shortName
      *
-     * @return string
+     * @return AddressObjectType
      */
     public function getShortName()
     {
@@ -793,7 +792,7 @@ class AddressObject
     /**
      * Set aoLevel
      *
-     * @param AddressObjectType $aoLevel
+     * @param integer $aoLevel
      *
      * @return AddressObject
      */
@@ -807,7 +806,7 @@ class AddressObject
     /**
      * Get aoLevel
      *
-     * @return AddressObjectType
+     * @return int
      */
     public function getAoLevel()
     {
@@ -889,7 +888,7 @@ class AddressObject
     /**
      * Set nextId
      *
-     * @param Uuid $nextId
+     * @param AddressObject $nextId
      *
      * @return AddressObject
      */
@@ -903,7 +902,7 @@ class AddressObject
     /**
      * Get nextId
      *
-     * @return Uuid
+     * @return AddressObject
      */
     public function getNextId()
     {

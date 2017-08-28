@@ -54,6 +54,10 @@ class FiasController extends AbstractController
                     'service' => 'shiptor_fias.service.fias_api',
                     'method' => 'getParent',
                 ],
+                'getActualParent' => [
+                    'service' => 'shiptor_fias.service.fias_api',
+                    'method' => 'getActualParent',
+                ],
             ],
         ]));
 
