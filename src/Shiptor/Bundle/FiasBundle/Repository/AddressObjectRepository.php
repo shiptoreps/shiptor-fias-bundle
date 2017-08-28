@@ -146,7 +146,7 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
      * @param $item
      * @return array
      */
-    public function findActualAddress($item)
+    public function getActualAddress($item)
     {
         return $this->createQueryBuilder('ao')
             ->select('ao, objectType')
@@ -163,9 +163,7 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
             ->setParameter('shortName', $item['shortName'])
             ->setParameter('plainCode', $item['plainCode'])
             ->setParameter('actStatus', AddressObject::STATUS_ACTUAL)
-            ->orderBy('ao.aoId')
-            ->getQuery()
-            ->getResult();
+            ->orderBy('ao.aoId');
     }
 
     /**

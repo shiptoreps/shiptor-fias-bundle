@@ -159,7 +159,9 @@ class FiasApiService extends AbstractService
             $addressObjects = $this
                 ->getEm()
                 ->getRepository('ShiptorFiasBundle:AddressObject')
-                ->findActualAddress($item);
+                ->findActualAddress($item)
+                ->getQuery()
+                ->getResult();
 
             $addressObject = $addressObjects[0];
 
