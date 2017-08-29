@@ -143,8 +143,8 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
     }
 
     /**
-     * @param $item
-     * @return array
+     * @param array $item
+     * @return \Doctrine\ORM\QueryBuilder
      */
     public function getActualAddress($item)
     {
