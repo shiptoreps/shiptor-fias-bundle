@@ -163,7 +163,8 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
             ->setParameter('shortName', $item['shortName'])
             ->setParameter('plainCode', $item['plainCode'])
             ->setParameter('actStatus', AddressObject::STATUS_ACTUAL)
-            ->orderBy('ao.aoId');
+            ->orderBy('ao.updateDate', 'DESC')
+            ->addOrderBy('ao.aoId');
     }
 
     /**
@@ -220,7 +221,8 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
             ->andWhere($qb->expr()->orX($qb->expr()->lte('LENGTH(ao.plainCode)', 11), $qb->expr()->isNull('ao.plainCode')))
             ->andWhere('ao.aoGuid = :aoGuid')
             ->setParameter('aoGuid', $addressObject->getParentGuid())
-            ->orderBy('ao.aoId');
+            ->orderBy('ao.updateDate', 'DESC')
+            ->addOrderBy('ao.aoId');
 
         if( null !== $actual) {
             $qb
