@@ -4,6 +4,7 @@ namespace Shiptor\Bundle\FiasBundle\Repository;
 
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\Expr\Join;
+use Ramsey\Uuid\Uuid;
 use Shiptor\Bundle\FiasBundle\Entity\AddressObject;
 use Shiptor\Bundle\FiasBundle\Entity\AddressObjectType;
 
@@ -211,7 +212,7 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
         return $query;
     }
 
-    public function getParentAddress($actual = null, AddressObject $addressObject)
+    public function getParentAddress($actual = null, $addressGuid)
     {
         $qb = $this
             ->createQueryBuilder('ao');
@@ -220,11 +221,11 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
             ->where('ao.shortName = objectType.scName')
             ->andWhere($qb->expr()->orX($qb->expr()->lte('LENGTH(ao.plainCode)', 11), $qb->expr()->isNull('ao.plainCode')))
             ->andWhere('ao.aoGuid = :aoGuid')
-            ->setParameter('aoGuid', $addressObject->getParentGuid())
+            ->setParameter('aoGuid', $addressGuid)
             ->orderBy('ao.updateDate', 'DESC')
             ->addOrderBy('ao.aoId');
 
-        if( null !== $actual) {
+        if (null !== $actual) {
             $qb
                 ->andWhere('ao.actStatus = :actStatus')
                 ->setParameter('actStatus', AddressObject::STATUS_ACTUAL);

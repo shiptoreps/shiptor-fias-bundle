@@ -174,33 +174,31 @@ class FiasApiService extends AbstractService
             $parents = $this
                 ->getEm()
                 ->getRepository('ShiptorFiasBundle:AddressObject')
-                ->getParentAddress(AddressObject::STATUS_ACTUAL, $addressObject)
+                ->getParentAddress(AddressObject::STATUS_ACTUAL, $addressObject->getParentGuid())
                 ->getQuery()
                 ->getResult();
 
             if (!isset($parents[0])) {
-                $parentAddress = $addressObject;
+                $parentGuid = $addressObject->getParentGuid();
 
                 do {
                     $parents = $this
                         ->getEm()
                         ->getRepository('ShiptorFiasBundle:AddressObject')
-                        ->getParentAddress(null, $parentAddress)
+                        ->getParentAddress(null, $parentGuid)
                         ->getQuery()
                         ->getResult();
-
 
                     if ($parents[0]->getActStatus() === AddressObject::STATUS_ACTUAL) {
                         break;
                     }
 
-                    $parentAddress = $parents[0]->getParentGuid();
+                    $parentGuid = $parents[0]->getParentGuid();
                 } while ($parents[0]);
             }
 
             $parent[] = $parents[0];
         }
-
 
         $result = [];
         $transformer = $this->container->get('shiptor_fias.service.address_object');
