@@ -3,21 +3,37 @@ namespace Shiptor\Bundle\FiasBundle\Service\Api;
 
 use Moriony\RpcServer\Exception\InvalidParamException;
 use Moriony\RpcServer\Request\RpcRequestInterface;
-use Moriony\RpcServer\Response\JsonRpcResponse;
 use Pagerfanta\Pagerfanta;
 use Shiptor\Bundle\FiasBundle\AbstractService;
 use Shiptor\Bundle\FiasBundle\Entity\AddressObject;
-use Shiptor\Bundle\FiasBundle\Entity\AddressObjectType;
 use Shiptor\Bundle\FiasBundle\Exception\BasicException;
 use Shiptor\Bundle\FiasBundle\Repository\AddressObjectRepository;
 use Shiptor\Bundle\FiasBundle\Service\PagerService;
-use Symfony\Component\DependencyInjection\Exception\ParameterNotFoundException;
 
 /**
  * Class FiasApi
  */
 class FiasApiService extends AbstractService
 {
+    /**
+     * @param RpcRequestInterface $request
+     * @return array
+     * @throws InvalidParamException
+     * @throws \Exception
+     */
+    public function getGroupedActualAddresses(RpcRequestInterface $request)
+    {
+        $offset = $request->get('offset', 0);
+        $limit = $request->get('limit', 1);
+
+        return $this
+            ->getDoctrine()
+            ->getRepository('ShiptorFiasBundle:AddressObject')
+            ->getGroupedAddresses(AddressObject::STATUS_ACTUAL, $offset, $limit)
+            ->getQuery()
+            ->getResult();
+    }
+
     /**
      * @param RpcRequestInterface $request
      * @return array
@@ -35,24 +51,16 @@ class FiasApiService extends AbstractService
         }
 
         $data = $this
-            ->getDoctrine()
+            ->getEm()
             ->getRepository('ShiptorFiasBundle:AddressObject')
             ->getAddressObject(AddressObject::STATUS_ACTUAL, $type, null, $offset, $limit)
             ->getQuery()
-            ->getResult()
-        ;
+            ->getResult();
 
         $result = [];
         $addressObjectTransformer = $this->container->get('shiptor_fias.service.address_object');
-        $addressObjectTypeTransformer = $this->container->get('shiptor_fias.service.address_object_type');
         foreach ($data as $key => $item) {
-            if ($item instanceof AddressObject) {
-                $result[$key]['addressObjects'] = $addressObjectTransformer->transform($item);
-            }
-
-            if ($item instanceof AddressObjectType) {
-                $result[$key-1]['addressObjectTypes'] = $addressObjectTypeTransformer->transform($item);
-            }
+            $result['addressObjects'][] = $addressObjectTransformer->transform($item);
         }
 
         return $result;
@@ -88,10 +96,10 @@ class FiasApiService extends AbstractService
         }
 
         $result = [
-            'count' => $pager->count(),
-            'page' => $pager->getCurrentPage(),
-            'per_page' => $pager->getMaxPerPage(),
-            'pages' => $pager->getNbPages(),
+            'count'          => $pager->count(),
+            'page'           => $pager->getCurrentPage(),
+            'per_page'       => $pager->getMaxPerPage(),
+            'pages'          => $pager->getNbPages(),
             'addressObjects' => [],
         ];
 
@@ -114,8 +122,7 @@ class FiasApiService extends AbstractService
         /** @var AddressObjectRepository $repo */
         $repo = $this
             ->getDoctrine()
-            ->getRepository('ShiptorFiasBundle:AddressObject')
-        ;
+            ->getRepository('ShiptorFiasBundle:AddressObject');
 
         $nextID = $aoId;
 
@@ -130,11 +137,102 @@ class FiasApiService extends AbstractService
                 break;
             }
 
-            $nextID = $result->getNextId()->serialize();
-        } while($result);
+            $nextID = $result->getNextId();
+        } while ($result);
 
         return [
-            'plainCode' => ($result)?$result->getPlainCode():null,
+            'plainCode' => ($result) ? $result->getPlainCode() : null,
         ];
+    }
+
+    /**
+     * @param RpcRequestInterface $request
+     * @return array
+     */
+    public function getParent(RpcRequestInterface $request)
+    {
+        $data = $request->get('data');
+        $parent = [];
+
+        foreach ($data as $item) {
+            /** @var AddressObject[] $addressObjects */
+            $addressObjects = $this
+                ->getEm()
+                ->getRepository('ShiptorFiasBundle:AddressObject')
+                ->getActualAddress($item)
+                ->getQuery()
+                ->getResult();
+
+            $addressObject = $addressObjects[0];
+
+            if (null === $addressObject->getParentGuid()) {
+                $parent[] = null;
+
+                continue;
+            }
+
+            $parents = $this
+                ->getEm()
+                ->getRepository('ShiptorFiasBundle:AddressObject')
+                ->getParentAddress(AddressObject::STATUS_ACTUAL, $addressObject)
+                ->getQuery()
+                ->getResult();
+
+            if (!isset($parents[0])) {
+                $parentAddress = $addressObject;
+
+                do {
+                    $parents = $this
+                        ->getEm()
+                        ->getRepository('ShiptorFiasBundle:AddressObject')
+                        ->getParentAddress(null, $parentAddress)
+                        ->getQuery()
+                        ->getResult();
+
+
+                    if ($parents[0]->getActStatus() === AddressObject::STATUS_ACTUAL) {
+                        break;
+                    }
+
+                    $parentAddress = $parents[0]->getParentGuid();
+                } while ($parents[0]);
+            }
+
+            $parent[] = $parents[0];
+        }
+
+
+        $result = [];
+        $transformer = $this->container->get('shiptor_fias.service.address_object');
+        foreach ($parent as $addressObject) {
+            $result['addressObjects'][] = $transformer->transform($addressObject);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param RpcRequestInterface $request
+     * @return array
+     */
+    public function getActualParent(RpcRequestInterface $request)
+    {
+        $offset = $request->get('offset', 0);
+        $limit = $request->get('limit', 1);
+
+        $data = $this
+            ->getEm()
+            ->getRepository('ShiptorFiasBundle:AddressObject')
+            ->getAddressParents($offset, $limit)
+            ->getQuery()
+            ->getResult();
+
+        $result = [];
+        $addressObjectTransformer = $this->container->get('shiptor_fias.service.address_object');
+        foreach ($data as $key => $item) {
+            $result['addressObjects'][] = $addressObjectTransformer->transform($item);
+        }
+
+        return $result;
     }
 }
