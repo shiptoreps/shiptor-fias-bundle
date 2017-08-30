@@ -240,17 +240,35 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
      */
     public function getAddressByPostalCode($postalCode)
     {
-        return $this
-            ->createQueryBuilder('ao')
+        $qb = $this
+            ->createQueryBuilder('ao');
+
+        $query1 = $this
+            ->createQueryBuilder('ao1')
+            ->select('ao1.ctArCode')
+            ->select('CONCAT(ao1.regionCode, ao1.areaCode, ao1.cityCode, ao1.ctArCode)')
+            ->andWhere('ao1.actStatus = :actStatus')
+            ->andWhere('ao1.currStatus = :currStatus')
+            ->setParameter('actStatus', AddressObject::STATUS_ACTUAL)
+            ->setParameter('currStatus', 0)
+            ->groupBy('ao1.regionCode')
+            ->addGroupBy('ao1.areaCode')
+            ->addGroupBy('ao1.cityCode')
+            ->addGroupBy('ao1.ctArCode')
+            ->getQuery()
+            ->getDQL();
+
+        return $qb
             ->select('ao, objectType')
             ->leftJoin('ao.shortName', 'objectType')
             ->where('ao.shortName = objectType.scName')
-            ->andWhere('LENGTH(ao.plainCode) <= 11')
-            ->andWhere('ao.currStatus = :currStatus')
-            ->andWhere('ao.actStatus = :actStatus')
+            ->andWhere('ao.aoLevel = objectType.level')
             ->andWhere('ao.postalCode = :postalCode')
             ->setParameter('actStatus', AddressObject::STATUS_ACTUAL)
             ->setParameter('currStatus', 0)
-            ->setParameter('postalCode', $postalCode);
+            ->setParameter('postalCode', $postalCode)
+            ->andWhere($qb->expr()->in('ao.plainCode', $query1))
+            ->orderBy('ao.aoLevel', 'ASC')
+            ->addOrderBy('ao.aoId', 'DESC');
     }
 }
