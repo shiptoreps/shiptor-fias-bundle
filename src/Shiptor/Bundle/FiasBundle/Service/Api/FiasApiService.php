@@ -233,4 +233,43 @@ class FiasApiService extends AbstractService
 
         return $result;
     }
+
+    /**
+     * @param RpcRequestInterface $request
+     * @return array
+     */
+    public function getDataByPostalCode(RpcRequestInterface $request)
+    {
+        $postalCode = $request->get('postalCode');
+
+        $data = $this
+            ->getEm()
+            ->getRepository('ShiptorFiasBundle:AddressObject')
+            ->createQueryBuilder('ao')
+            ->select('ao, objectType')
+            ->leftJoin('ao.shortName', 'objectType')
+            ->where('ao.shortName = objectType.scName')
+            ->andWhere('LENGTH(ao.plainCode) <= 11')
+            ->andWhere('ao.currStatus = :currStatus')
+            ->andWhere('ao.actStatus = :actStatus')
+            ->andWhere('ao.postalCode = :postalCode')
+            ->setParameter('actStatus', AddressObject::STATUS_ACTUAL)
+            ->setParameter('currStatus', 0)
+            ->setParameter('postalCode', $postalCode)
+            ->getQuery()
+            ->getResult();
+
+        $result = [];
+
+        foreach ($data as $key => $item) {
+            /** @var AddressObject  $item*/
+            $result['data'][$key]['offName'] = $item->getOffName();
+            $result['data'][$key]['scName'] = $item->getShortName()->getScName();
+            $result['data'][$key]['socrName'] = $item->getShortName()->getSocrName();
+            $result['data'][$key]['plainCode'] = $item->getPlainCode();
+            $result['data'][$key]['currStatus'] = $item->getCurrStatus();
+        }
+
+        return $result;
+    }
 }
