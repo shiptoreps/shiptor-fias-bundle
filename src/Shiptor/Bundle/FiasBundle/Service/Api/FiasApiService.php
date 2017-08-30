@@ -253,11 +253,13 @@ class FiasApiService extends AbstractService
 
         foreach ($data as $key => $item) {
             /** @var AddressObject  $item*/
+            $result['data'][$key]['regionCode'] = $item->getRegionCode();
             $result['data'][$key]['offName'] = $item->getOffName();
             $result['data'][$key]['scName'] = $item->getShortName()->getScName();
             $result['data'][$key]['socrName'] = $item->getShortName()->getSocrName();
             $result['data'][$key]['plainCode'] = $item->getPlainCode();
             $result['data'][$key]['currStatus'] = $item->getCurrStatus();
+            $result['data'][$key]['centStatus'] = $item->getCentStatus();
         }
 
         return $result;
