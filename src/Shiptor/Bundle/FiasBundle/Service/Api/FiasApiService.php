@@ -245,17 +245,7 @@ class FiasApiService extends AbstractService
         $data = $this
             ->getEm()
             ->getRepository('ShiptorFiasBundle:AddressObject')
-            ->createQueryBuilder('ao')
-            ->select('ao, objectType')
-            ->leftJoin('ao.shortName', 'objectType')
-            ->where('ao.shortName = objectType.scName')
-            ->andWhere('LENGTH(ao.plainCode) <= 11')
-            ->andWhere('ao.currStatus = :currStatus')
-            ->andWhere('ao.actStatus = :actStatus')
-            ->andWhere('ao.postalCode = :postalCode')
-            ->setParameter('actStatus', AddressObject::STATUS_ACTUAL)
-            ->setParameter('currStatus', 0)
-            ->setParameter('postalCode', $postalCode)
+            ->getAddressByPostalCode($postalCode)
             ->getQuery()
             ->getResult();
 
