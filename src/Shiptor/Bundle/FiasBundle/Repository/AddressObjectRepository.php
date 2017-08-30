@@ -245,16 +245,10 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
 
         $query1 = $this
             ->createQueryBuilder('ao1')
-            ->select('ao1.ctArCode')
-            ->select('CONCAT(ao1.regionCode, ao1.areaCode, ao1.cityCode, ao1.ctArCode)')
+            ->select('DISTINCT CONCAT(ao1.regionCode, ao1.areaCode, ao1.cityCode, ao1.ctArCode)')
             ->andWhere('ao1.actStatus = :actStatus')
             ->andWhere('ao1.currStatus = :currStatus')
-            ->setParameter('actStatus', AddressObject::STATUS_ACTUAL)
-            ->setParameter('currStatus', 0)
-            ->groupBy('ao1.regionCode')
-            ->addGroupBy('ao1.areaCode')
-            ->addGroupBy('ao1.cityCode')
-            ->addGroupBy('ao1.ctArCode')
+            ->andWhere('ao1.postalCode = :postalCode')
             ->getQuery()
             ->getDQL();
 
@@ -263,7 +257,8 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
             ->leftJoin('ao.shortName', 'objectType')
             ->where('ao.shortName = objectType.scName')
             ->andWhere('ao.aoLevel = objectType.level')
-            ->andWhere('ao.postalCode = :postalCode')
+            ->andWhere('ao.actStatus = :actStatus')
+            ->andWhere('ao.currStatus = :currStatus')
             ->setParameter('actStatus', AddressObject::STATUS_ACTUAL)
             ->setParameter('currStatus', 0)
             ->setParameter('postalCode', $postalCode)
