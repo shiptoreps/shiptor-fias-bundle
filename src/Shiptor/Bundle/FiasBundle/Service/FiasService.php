@@ -2,6 +2,7 @@
 namespace Shiptor\Bundle\FiasBundle\Service;
 
 use Shiptor\Bundle\FiasBundle\AbstractService;
+use Shiptor\Bundle\FiasBundle\Entity\AddressObject;
 use Shiptor\Bundle\FiasBundle\Serializer\Converters\AttributeConverter;
 use Shiptor\Bundle\FiasBundle\Serializer\Normalizers\DateTimeNormalizer;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -131,6 +132,13 @@ class FiasService extends AbstractService
                             $entity = $serializers[$tag]->deserialize($reader->readOuterXml(), $class, 'xml');
 
                             DateTimeNormalizer::normalize($entity);
+
+                            if ($entity instanceof AddressObject) {
+                                if($entity->getNextId()) {
+                                    $entity->setNextId($this->getEm()->getReference('ShiptorFiasBundle:AddressObject', $entity->getNextId()));
+                                }
+                                $entity->setShortName($this->getEm()->getReference('ShiptorFiasBundle:AddressObjectType', $entity->getShortName()));
+                            }
 
                             $this->getEm()->merge($entity);
 

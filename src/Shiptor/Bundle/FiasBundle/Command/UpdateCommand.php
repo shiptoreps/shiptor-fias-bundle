@@ -87,6 +87,8 @@ class UpdateCommand extends AbstractCommand
 
             if ($this->getFiasService()->downloadArchive($dirName, $fileName, $item->getFiasDeltaXmlUrl())) {
                 $this->getFiasService()->extractArchive($dirName, $fileName, $dirName);
+            } else {
+                continue;
             }
 
             if ($this->getFiasService()->saveXmlToDb($dirName, $this->transformersClasses, $output)) {

@@ -155,7 +155,7 @@ class AddressObject
      * @var AddressObjectType
      *
      * @ORM\ManyToOne(targetEntity="AddressObjectType")
-     * @ORM\JoinColumn(name="short_name", referencedColumnName="sc_name")
+     * @ORM\JoinColumn(name="short_name", referencedColumnName="sc_name", nullable=false)
      */
     private $shortName;
 
@@ -194,10 +194,10 @@ class AddressObject
     private $prevId;
 
     /**
-     * @var AddressObjectType
+     * @var AddressObject
      *
      * @ORM\ManyToOne(targetEntity="AddressObject", inversedBy="aoId")
-     * @ORM\JoinColumn(name="next_id", referencedColumnName="ao_id")
+     * @ORM\JoinColumn(name="next_id", referencedColumnName="ao_id", nullable=true)
      */
     private $nextId;
 
@@ -888,7 +888,7 @@ class AddressObject
     /**
      * Set nextId
      *
-     * @param AddressObject $nextId
+     * @param AddressObject|null $nextId
      *
      * @return AddressObject
      */
@@ -902,7 +902,7 @@ class AddressObject
     /**
      * Get nextId
      *
-     * @return AddressObject
+     * @return AddressObject|null
      */
     public function getNextId()
     {
