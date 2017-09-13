@@ -71,15 +71,13 @@ class UpdateCommand extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-
         $version = $input->getArgument('version');
         /** @var UpdateList[] $updateList */
         $updateList = $this->getEm()
             ->getRepository('ShiptorFiasBundle:UpdateList')
             ->getUpdateList($version)
             ->getQuery()
-            ->getResult()
-        ;
+            ->getResult();
 
         foreach ($updateList as $item) {
             $dirName = sys_get_temp_dir().DIRECTORY_SEPARATOR.self::FIAS_UPDATE_DIR.$item->getVersionId();

@@ -110,6 +110,8 @@ class FiasService extends AbstractService
                     continue;
                 }
 
+                $output->writeln('Processing to parse file: '.$file);
+
                 foreach ($transformersClasses[$matches[1]] as $tag => $class) {
                     $converter = new AttributeConverter(new $class());
                     $objectNormalizer = new ObjectNormalizer(null, $converter);

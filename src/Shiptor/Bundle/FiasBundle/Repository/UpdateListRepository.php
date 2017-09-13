@@ -20,8 +20,10 @@ class UpdateListRepository extends \Doctrine\ORM\EntityRepository
 
         if ($version) {
             $qb
-                ->where('ul.versionId = :versionId')
+                ->andWhere('ul.versionId = :versionId')
                 ->setParameter('versionId',$version);
+        } else {
+            $qb->where('ul.updatedAt IS NULL');
         }
 
         return $qb;
