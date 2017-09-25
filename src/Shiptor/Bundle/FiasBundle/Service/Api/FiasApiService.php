@@ -282,7 +282,7 @@ class FiasApiService extends AbstractService
 
         if (!$addressObject) {
             return [
-                'status' => 'ok',
+                'status' => 'error',
                 'error'  => "This {$plainCode} plainCode doesn't exist!",
             ];
         }
@@ -296,18 +296,18 @@ class FiasApiService extends AbstractService
         }
 
         $result = [];
-        $result['data']['offName'] = $last->getOffName();
-        $result['data']['scName'] = $last->getShortName()->getScName();
-        $result['data']['socrName'] = $last->getShortName()->getSocrName();
-        $result['data']['plainCode'] = $last->getPlainCode();
-        $result['data']['currStatus'] = $last->getCurrStatus();
-        $result['data']['actStatus'] = $last->getActStatus();
+        $result['offName'] = $last->getOffName();
+        $result['scName'] = $last->getShortName()->getScName();
+        $result['socrName'] = $last->getShortName()->getSocrName();
+        $result['plainCode'] = $last->getPlainCode();
+        $result['currStatus'] = $last->getCurrStatus();
+        $result['actStatus'] = $last->getActStatus();
 
         if ($last->getActStatus() !== 1) {
             return [
                 'status' => 'error',
                 'error'  => "Returned data do not have actual status 1.",
-                'data'   => $result['data'],
+                'data'   => $result,
             ];
         }
 
@@ -315,10 +315,13 @@ class FiasApiService extends AbstractService
             return [
                 'status' => 'error',
                 'error'  => "Returned data do not have current status 0.",
-                'data'   => $result['data'],
+                'data'   => $result,
             ];
         }
 
-        return $result;
+        return [
+            'status' => 'ok',
+            'data'   => $result,
+        ];
     }
 }
