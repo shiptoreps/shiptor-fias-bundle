@@ -264,4 +264,59 @@ class FiasApiService extends AbstractService
 
         return $result;
     }
+
+    /**
+     * @param RpcRequestInterface $request
+     * @return array
+     */
+    public function getActualPlainCode(RpcRequestInterface $request)
+    {
+        $plainCode = $request->get('plainCode');
+        /** @var AddressObject $addressObject */
+        $addressObject = $this
+            ->getEm()
+            ->getRepository('ShiptorFiasBundle:AddressObject')
+            ->createQueryBuilder('ao')
+            ->where('ao.plainCode = :plainCode')
+            ->setParameter('plainCode', $plainCode)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        if (!$addressObject) {
+            return [
+                'error' => "This {$plainCode} plainCode doesn't exist!"
+            ];
+        }
+
+        $data = $this
+            ->getEm()
+            ->getRepository('ShiptorFiasBundle:AddressObject')
+            ->createQueryBuilder('ao')
+            ->where('ao.offName = :offName')
+            ->andWhere('ao.actStatus = 1')
+            ->andWhere('ao.currStatus = 0')
+            ->setParameter('offName', $addressObject->getOffName())
+            ->getQuery()
+            ->getResult();
+
+        if (!$data) {
+            return [
+                'data' => false
+            ];
+        }
+
+        $result = [];
+        foreach ($data as $key => $item) {
+            /** @var AddressObject  $item*/
+            $result['data'][$key]['offName'] = $item->getOffName();
+            $result['data'][$key]['scName'] = $item->getShortName()->getScName();
+            $result['data'][$key]['socrName'] = $item->getShortName()->getSocrName();
+            $result['data'][$key]['plainCode'] = $item->getPlainCode();
+            $result['data'][$key]['currStatus'] = $item->getCurrStatus();
+            $result['data'][$key]['centStatus'] = $item->getCentStatus();
+        }
+
+        return $result;
+    }
 }
