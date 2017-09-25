@@ -252,7 +252,7 @@ class FiasApiService extends AbstractService
         $result = [];
 
         foreach ($data as $key => $item) {
-            /** @var AddressObject  $item*/
+            /** @var AddressObject $item */
             $result['data'][$key]['regionCode'] = $item->getRegionCode();
             $result['data'][$key]['offName'] = $item->getOffName();
             $result['data'][$key]['scName'] = $item->getShortName()->getScName();
@@ -285,37 +285,30 @@ class FiasApiService extends AbstractService
 
         if (!$addressObject) {
             return [
-                'error' => "This {$plainCode} plainCode doesn't exist!"
+                'error' => "This {$plainCode} plainCode doesn't exist!",
             ];
         }
 
-        $data = $this
-            ->getEm()
-            ->getRepository('ShiptorFiasBundle:AddressObject')
-            ->createQueryBuilder('ao')
-            ->where('ao.offName = :offName')
-            ->andWhere('ao.actStatus = 1')
-            ->andWhere('ao.currStatus = 0')
-            ->setParameter('offName', $addressObject->getOffName())
-            ->getQuery()
-            ->getResult();
+        $nextId = $addressObject->getNextId();
+        while ($nextId) {
+            /** @var AddressObject $last */
+            $last = $nextId;
+            $nextId = $nextId->getNextId();
+        }
 
-        if (!$data) {
+        if (!isset($last)) {
             return [
-                'data' => false
+                'data' => false,
             ];
         }
 
         $result = [];
-        foreach ($data as $key => $item) {
-            /** @var AddressObject  $item*/
-            $result['data'][$key]['offName'] = $item->getOffName();
-            $result['data'][$key]['scName'] = $item->getShortName()->getScName();
-            $result['data'][$key]['socrName'] = $item->getShortName()->getSocrName();
-            $result['data'][$key]['plainCode'] = $item->getPlainCode();
-            $result['data'][$key]['currStatus'] = $item->getCurrStatus();
-            $result['data'][$key]['centStatus'] = $item->getCentStatus();
-        }
+        $result['data']['offName'] = $last->getOffName();
+        $result['data']['scName'] = $last->getShortName()->getScName();
+        $result['data']['socrName'] = $last->getShortName()->getSocrName();
+        $result['data']['plainCode'] = $last->getPlainCode();
+        $result['data']['currStatus'] = $last->getCurrStatus();
+        $result['data']['centStatus'] = $last->getCentStatus();
 
         return $result;
     }
