@@ -266,4 +266,20 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
             ->orderBy('ao.aoLevel', 'ASC')
             ->addOrderBy('ao.aoId', 'DESC');
     }
+
+    /**
+     * @param string $plainCode
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    public function getAddressByPlainCode($plainCode)
+    {
+        return $this
+            ->createQueryBuilder('ao')
+            ->where('ao.plainCode = :plainCode')
+            ->orWhere('ao.code = :plainCode')
+            ->setParameter('plainCode', $plainCode)
+            ->setMaxResults(1)
+            ->orderBy('ao.aoLevel', 'ASC')
+            ->addOrderBy('ao.aoId', 'DESC');
+    }
 }

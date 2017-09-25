@@ -276,30 +276,23 @@ class FiasApiService extends AbstractService
         $addressObject = $this
             ->getEm()
             ->getRepository('ShiptorFiasBundle:AddressObject')
-            ->createQueryBuilder('ao')
-            ->where('ao.plainCode = :plainCode')
-            ->setParameter('plainCode', $plainCode)
-            ->setMaxResults(1)
+            ->getAddressByPlainCode($plainCode)
             ->getQuery()
             ->getOneOrNullResult();
 
         if (!$addressObject) {
             return [
-                'error' => "This {$plainCode} plainCode doesn't exist!",
+                'status' => 'ok',
+                'error'  => "This {$plainCode} plainCode doesn't exist!",
             ];
         }
 
         $nextId = $addressObject->getNextId();
+        $last = $addressObject;
         while ($nextId) {
             /** @var AddressObject $last */
             $last = $nextId;
             $nextId = $nextId->getNextId();
-        }
-
-        if (!isset($last)) {
-            return [
-                'data' => false,
-            ];
         }
 
         $result = [];
@@ -308,7 +301,23 @@ class FiasApiService extends AbstractService
         $result['data']['socrName'] = $last->getShortName()->getSocrName();
         $result['data']['plainCode'] = $last->getPlainCode();
         $result['data']['currStatus'] = $last->getCurrStatus();
-        $result['data']['centStatus'] = $last->getCentStatus();
+        $result['data']['actStatus'] = $last->getActStatus();
+
+        if ($last->getActStatus() !== 1) {
+            return [
+                'status' => 'error',
+                'error'  => "Returned data do not have actual status 1.",
+                'data'   => $result['data'],
+            ];
+        }
+
+        if ($last->getCurrStatus() !== 0) {
+            return [
+                'status' => 'error',
+                'error'  => "Returned data do not have current status 0.",
+                'data'   => $result['data'],
+            ];
+        }
 
         return $result;
     }
