@@ -324,4 +324,23 @@ class FiasApiService extends AbstractService
             'data'   => $result,
         ];
     }
+
+    /**
+     * @param RpcRequestInterface $request
+     * @return array|null
+     * @throws InvalidParamException
+     */
+    public function getAddressByFias(RpcRequestInterface $request)
+    {
+        $address = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->findOneBy([
+            'aoGuid' => $request->get(0),
+            'actStatus' => 1,
+        ]);
+
+        if (!$address) {
+            throw new InvalidParamException('Address not found');
+        }
+
+        return $this->container->get('shiptor_fias.service.address_object')->transform($address);
+    }
 }
