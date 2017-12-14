@@ -302,6 +302,7 @@ class FiasApiService extends AbstractService
         $result['plainCode'] = $last->getPlainCode();
         $result['currStatus'] = $last->getCurrStatus();
         $result['actStatus'] = $last->getActStatus();
+        $result['liveStatus'] = $last->getLiveStatus();
 
         if ($last->getActStatus() !== 1) {
             return [
@@ -342,5 +343,36 @@ class FiasApiService extends AbstractService
         }
 
         return $this->container->get('shiptor_fias.service.address_object')->transform($address);
+    }
+
+    /**
+     * @param RpcRequestInterface $request
+     * @return null|array
+     */
+    public function getParentByCode(RpcRequestInterface $request)
+    {
+        $plainCode = $request->get('code');
+
+        /** @var AddressObject $addressObject */
+        $addressObject = $this
+            ->getEm()
+            ->getRepository('ShiptorFiasBundle:AddressObject')
+            ->getLiveAddressByPlainCode($plainCode)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        if (null === $addressObject->getParentGuid()) {
+            return null;
+        }
+
+        /** @var AddressObject $parentAddressObject */
+        $parentAddressObject = $this
+            ->getEm()
+            ->getRepository('ShiptorFiasBundle:AddressObject')
+            ->getLiveParent($addressObject)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return $this->container->get('shiptor_fias.service.address_object')->transform($parentAddressObject);
     }
 }

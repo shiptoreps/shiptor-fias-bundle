@@ -15,6 +15,8 @@ class AddressObject
 {
     const STATUS_NOT_ACTUAL = 0;
     const STATUS_ACTUAL = 1;
+    const STATUS_NOT_LIVE = 0;
+    const STATUS_LIVE = 1;
 
     const DIV_TYPE_RANGE = [0, 1, 2];
 

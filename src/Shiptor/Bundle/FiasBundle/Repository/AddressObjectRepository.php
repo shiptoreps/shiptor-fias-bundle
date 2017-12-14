@@ -282,4 +282,39 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
             ->orderBy('ao.aoLevel', 'ASC')
             ->addOrderBy('ao.aoId', 'DESC');
     }
+
+    /**
+     * @param string $plainCode
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    public function getLiveAddressByPlainCode($plainCode)
+    {
+        return $this
+            ->getAddressByPlainCode($plainCode)
+            ->where('ao.plainCode = :plainCode')
+            ->andWhere('ao.actStatus = :actStatus')
+            ->andWhere('ao.liveStatus = :liveStatus')
+            ->andWhere('ao.nextId IS NULL')
+            ->setParameter('plainCode', $plainCode)
+            ->setParameter('actStatus', AddressObject::STATUS_ACTUAL)
+            ->setParameter('liveStatus', AddressObject::STATUS_LIVE);
+    }
+
+    /**
+     * @param AddressObject $address
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    public function getLiveParent(AddressObject $address)
+    {
+        return $this
+            ->createQueryBuilder('ao')
+            ->where('ao.aoGuid = :aoGuid')
+            ->andWhere('ao.actStatus = :actStatus')
+            ->andWhere('ao.nextId IS NULL')
+            ->andWhere('ao.liveStatus = :liveStatus')
+            ->setParameter('aoGuid', $address->getParentGuid())
+            ->setParameter('actStatus', AddressObject::STATUS_ACTUAL)
+            ->setParameter('liveStatus', AddressObject::STATUS_LIVE)
+            ->setMaxResults(1);
+    }
 }
