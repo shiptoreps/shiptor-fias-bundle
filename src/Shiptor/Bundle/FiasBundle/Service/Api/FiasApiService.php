@@ -357,7 +357,10 @@ class FiasApiService extends AbstractService
         $addressObject = $this
             ->getEm()
             ->getRepository('ShiptorFiasBundle:AddressObject')
-            ->getLiveAddressByPlainCode($plainCode)
+            ->getAddressByPlainCode($plainCode)
+            ->andWhere('ao.actStatus = :actStatus')
+            ->andWhere('ao.nextId IS NULL')
+            ->setParameter('actStatus', AddressObject::STATUS_ACTUAL)
             ->getQuery()
             ->getOneOrNullResult();
 

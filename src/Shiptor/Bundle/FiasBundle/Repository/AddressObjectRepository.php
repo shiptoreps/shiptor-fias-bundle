@@ -284,23 +284,6 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
     }
 
     /**
-     * @param string $plainCode
-     * @return \Doctrine\ORM\QueryBuilder
-     */
-    public function getLiveAddressByPlainCode($plainCode)
-    {
-        return $this
-            ->getAddressByPlainCode($plainCode)
-            ->where('ao.plainCode = :plainCode')
-            ->andWhere('ao.actStatus = :actStatus')
-            ->andWhere('ao.liveStatus = :liveStatus')
-            ->andWhere('ao.nextId IS NULL')
-            ->setParameter('plainCode', $plainCode)
-            ->setParameter('actStatus', AddressObject::STATUS_ACTUAL)
-            ->setParameter('liveStatus', AddressObject::STATUS_LIVE);
-    }
-
-    /**
      * @param AddressObject $address
      * @return \Doctrine\ORM\QueryBuilder
      */
