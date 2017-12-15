@@ -361,7 +361,7 @@ class FiasApiService extends AbstractService
             ->getQuery()
             ->getOneOrNullResult();
 
-        if (null === $addressObject->getParentGuid()) {
+        if (!$addressObject || null === $addressObject->getParentGuid()) {
             return null;
         }
 
