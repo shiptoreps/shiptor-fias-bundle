@@ -303,6 +303,7 @@ class FiasApiService extends AbstractService
         $result['currStatus'] = $last->getCurrStatus();
         $result['actStatus'] = $last->getActStatus();
         $result['liveStatus'] = $last->getLiveStatus();
+        $result['aoLevel'] = $last->getAoLevel();
 
         if ($last->getActStatus() !== 1) {
             return [
