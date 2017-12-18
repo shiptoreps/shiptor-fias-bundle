@@ -287,17 +287,15 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
      * @param AddressObject $address
      * @return \Doctrine\ORM\QueryBuilder
      */
-    public function getLiveParent(AddressObject $address)
+    public function getDirectParent(AddressObject $address)
     {
         return $this
             ->createQueryBuilder('ao')
             ->where('ao.aoGuid = :aoGuid')
             ->andWhere('ao.actStatus = :actStatus')
             ->andWhere('ao.nextId IS NULL')
-            ->andWhere('ao.liveStatus = :liveStatus')
             ->setParameter('aoGuid', $address->getParentGuid())
             ->setParameter('actStatus', AddressObject::STATUS_ACTUAL)
-            ->setParameter('liveStatus', AddressObject::STATUS_LIVE)
             ->setMaxResults(1);
     }
 }

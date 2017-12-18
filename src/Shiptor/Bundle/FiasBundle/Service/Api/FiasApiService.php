@@ -373,7 +373,7 @@ class FiasApiService extends AbstractService
         $parentAddressObject = $this
             ->getEm()
             ->getRepository('ShiptorFiasBundle:AddressObject')
-            ->getLiveParent($addressObject)
+            ->getDirectParent($addressObject)
             ->getQuery()
             ->getOneOrNullResult();
 
