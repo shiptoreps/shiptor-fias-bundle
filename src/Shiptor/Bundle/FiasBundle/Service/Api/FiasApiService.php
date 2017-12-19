@@ -306,6 +306,10 @@ class FiasApiService extends AbstractService
         $result['aoLevel'] = $last->getAoLevel();
 
         $data = $this->findNextParentCodeAndLoclLevel($last);
+        if ($data) {
+            $result['localLevel'] = $data['localLevel'];
+            $result['parentCode'] = $data['parentCode'];
+        }
 
         $result['localLevel'] = $data['localLevel'];
         $result['parentCode'] = $data['parentCode'];
@@ -404,6 +408,10 @@ class FiasApiService extends AbstractService
             ->setParameter('parent', $addressObject->getParentGuid())
             ->getQuery()
             ->getResult();
+
+        if (!$parentAddressObject) {
+            return null;
+        }
 
         $nextAddress = $parentAddressObject->getNextId();
         $lastAddress = $parentAddressObject;
