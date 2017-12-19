@@ -305,6 +305,11 @@ class FiasApiService extends AbstractService
         $result['liveStatus'] = $last->getLiveStatus();
         $result['aoLevel'] = $last->getAoLevel();
 
+        $data = $this->findNextParentCodeAndLoclLevel($last);
+
+        $result['localLevel'] = $data['localLevel'];
+        $result['parentCode'] = $data['parentCode'];
+
         if ($last->getActStatus() !== 1) {
             return [
                 'status' => 'error',
@@ -386,5 +391,33 @@ class FiasApiService extends AbstractService
         }
 
         return $this->container->get('shiptor_fias.service.address_object')->transform($last);
+    }
+
+    protected function findNextParentCodeAndLoclLevel(AddressObject $addressObject)
+    {
+        /** @var AddressObject $parentAddressObject */
+        $parentAddressObject = $this
+            ->getEm()
+            ->getRepository('ShiptorFiasBundle:AddressObject')
+            ->createQueryBuilder('ao')
+            ->where('ao.aoGuid = :parent')
+            ->setParameter('parent', $addressObject->getParentGuid())
+            ->getQuery()
+            ->getResult();
+
+        $nextAddress = $parentAddressObject->getNextId();
+        $lastAddress = $parentAddressObject;
+        $localLevel = 1;
+        while ($nextAddress) {
+            /** @var AddressObject $lastAddress */
+            $lastAddress = $nextAddress;
+            $nextAddress = $nextAddress->getNextId();
+            $localLevel++;
+        }
+
+        return [
+            'localLevel' => $localLevel,
+            'parentCode' => $lastAddress->getCode(),
+        ];
     }
 }
