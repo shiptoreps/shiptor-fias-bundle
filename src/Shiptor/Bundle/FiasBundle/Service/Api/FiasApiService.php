@@ -377,6 +377,14 @@ class FiasApiService extends AbstractService
             ->getQuery()
             ->getOneOrNullResult();
 
-        return $this->container->get('shiptor_fias.service.address_object')->transform($parentAddressObject);
+        $nextId = $parentAddressObject->getNextId();
+        $last = $parentAddressObject;
+        while ($nextId) {
+            /** @var AddressObject $last */
+            $last = $nextId;
+            $nextId = $nextId->getNextId();
+        }
+
+        return $this->container->get('shiptor_fias.service.address_object')->transform($last);
     }
 }
