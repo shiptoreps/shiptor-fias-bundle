@@ -311,9 +311,6 @@ class FiasApiService extends AbstractService
             $result['parentCode'] = $data['parentCode'];
         }
 
-        $result['localLevel'] = $data['localLevel'];
-        $result['parentCode'] = $data['parentCode'];
-
         if ($last->getActStatus() !== 1) {
             return [
                 'status' => 'error',
@@ -406,8 +403,10 @@ class FiasApiService extends AbstractService
             ->createQueryBuilder('ao')
             ->where('ao.aoGuid = :parent')
             ->setParameter('parent', $addressObject->getParentGuid())
+            ->setMaxResults(1)
+            ->orderBy('ao.plainCode')
             ->getQuery()
-            ->getResult();
+            ->getOneOrNullResult();
 
         if (!$parentAddressObject) {
             return null;
@@ -425,7 +424,7 @@ class FiasApiService extends AbstractService
 
         return [
             'localLevel' => $localLevel,
-            'parentCode' => $lastAddress->getCode(),
+            'parentCode' => $lastAddress->getPlainCode(),
         ];
     }
 }
