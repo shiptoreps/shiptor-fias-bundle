@@ -298,4 +298,53 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
             ->setParameter('actStatus', AddressObject::STATUS_ACTUAL)
             ->setMaxResults(1);
     }
+
+    /**
+     * @param AddressObject $addressObject
+     * @return AddressObject
+     */
+    public function getLast(AddressObject $addressObject)
+    {
+        $nextAddress = $addressObject->getNextId();
+        $lastAddress = $addressObject;
+        while ($nextAddress) {
+            /** @var AddressObject $lastAddress */
+            $lastAddress = $nextAddress;
+            $nextAddress = $nextAddress->getNextId();
+        }
+
+        return $lastAddress;
+    }
+
+    /**
+     * @param AddressObject $addressObject
+     * @return array
+     */
+    public function getRegionAndLocalLevel(AddressObject $addressObject)
+    {
+        /** @var AddressObject $region */
+        $region = $addressObject;
+        $localLevel = 1;
+        while ($region->getParentGuid()) {
+            /** @var AddressObject $parent */
+            $parent = $this
+                ->createQueryBuilder('ao')
+                ->where('ao.aoGuid = :parent')
+                ->setParameter('parent', $region->getParentGuid())
+                ->setMaxResults(1)
+                ->orderBy('ao.plainCode')
+                ->getQuery()
+                ->getOneOrNullResult();
+
+            if ($parent) {
+                ++$localLevel;
+                $region = $this->getLast($parent);
+            }
+        }
+
+        return [
+            $localLevel,
+            $region,
+        ];
+    }
 }

@@ -305,10 +305,11 @@ class FiasApiService extends AbstractService
         $result['liveStatus'] = $last->getLiveStatus();
         $result['aoLevel'] = $last->getAoLevel();
 
-        $data = $this->findNextParentCodeAndLoclLevel($last);
+        $data = $this->findParentAndRegionAndLoclLevel($last);
         if ($data) {
+            $result['parent'] = $data['parent'];
+            $result['region'] = $data['region'];
             $result['localLevel'] = $data['localLevel'];
-            $result['parentCode'] = $data['parentCode'];
         }
 
         if ($last->getActStatus() !== 1) {
@@ -394,7 +395,7 @@ class FiasApiService extends AbstractService
         return $this->container->get('shiptor_fias.service.address_object')->transform($last);
     }
 
-    protected function findNextParentCodeAndLoclLevel(AddressObject $addressObject)
+    public function findParentAndRegionAndLoclLevel(AddressObject $addressObject)
     {
         /** @var AddressObject $parentAddressObject */
         $parentAddressObject = $this
@@ -411,20 +412,14 @@ class FiasApiService extends AbstractService
         if (!$parentAddressObject) {
             return null;
         }
-
-        $nextAddress = $parentAddressObject->getNextId();
-        $lastAddress = $parentAddressObject;
-        $localLevel = 1;
-        while ($nextAddress) {
-            /** @var AddressObject $lastAddress */
-            $lastAddress = $nextAddress;
-            $nextAddress = $nextAddress->getNextId();
-            $localLevel++;
-        }
+        /** @var AddressObject $lastAddressObject */
+        $lastAddressObject = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->getLast($parentAddressObject);
+        list($localLevel, $region) = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->getRegionAndLocalLevel($lastAddressObject);
 
         return [
+            'parent' => $this->container->get('shiptor_fias.service.address_object')->transform($lastAddressObject),
+            'region' => $this->container->get('shiptor_fias.service.address_object')->transform($region),
             'localLevel' => $localLevel,
-            'parentCode' => $lastAddress->getPlainCode(),
         ];
     }
 }
