@@ -413,11 +413,12 @@ class FiasApiService extends AbstractService
             return null;
         }
         /** @var AddressObject $lastAddressObject */
-        $lastAddressObject = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->getLast($parentAddressObject);
+        $lastParentAddressObject = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->getLast($parentAddressObject);
+        $lastAddressObject = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->getLast($addressObject);
         list($localLevel, $region) = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->getRegionAndLocalLevel($lastAddressObject);
 
         return [
-            'parent' => $this->container->get('shiptor_fias.service.address_object')->transform($lastAddressObject),
+            'parent' => $this->container->get('shiptor_fias.service.address_object')->transform($lastParentAddressObject),
             'region' => $this->container->get('shiptor_fias.service.address_object')->transform($region),
             'localLevel' => $localLevel,
         ];
