@@ -70,11 +70,6 @@ class UpdateList
     private $kladr47ZUrl;
 
     /**
-     * @ORM\Column(name="updated_at", type="datetime")
-     */
-    private $updatedAt;
-
-    /**
      * Set versionId
      *
      * @param int $versionId
@@ -265,24 +260,4 @@ class UpdateList
     {
         return $this->kladr47ZUrl;
     }
-
-    /**
-     * @param \DateTime|null $updatedAt
-     * @return UpdateList
-     */
-    public function setUpdatedAt($updatedAt)
-    {
-        $this->updatedAt = $updatedAt;
-
-        return $this;
-    }
-
-    /**
-     * @return \DateTime|null
-     */
-    public function getUpdatedAt()
-    {
-        return $this->updatedAt;
-    }
 }
-
