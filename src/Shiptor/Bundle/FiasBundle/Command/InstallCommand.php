@@ -14,6 +14,7 @@ use Shiptor\Bundle\FiasBundle\Entity\HouseStateStatus;
 use Shiptor\Bundle\FiasBundle\Entity\IntervalStatus;
 use Shiptor\Bundle\FiasBundle\Entity\Landmark;
 use Shiptor\Bundle\FiasBundle\Entity\NormativeDocument;
+use Shiptor\Bundle\FiasBundle\Entity\NormativeDocumentType;
 use Shiptor\Bundle\FiasBundle\Entity\OperationStatus;
 use Shiptor\Bundle\FiasBundle\Entity\Room;
 use Shiptor\Bundle\FiasBundle\Entity\Stead;
@@ -44,12 +45,32 @@ class InstallCommand extends AbstractCommand
         'HSTSTAT'  => ['HouseStateStatus' => HouseStateStatus::class],
         'INTVSTAT' => ['IntervalStatus' => IntervalStatus::class],
         'LANDMARK' => ['Landmark' => Landmark::class],
+        'NDOCTYPE' => ['NormativeDocumentType' => NormativeDocumentType::class],
         'NORMDOC'  => ['NormativeDocument' => NormativeDocument::class],
         'OPERSTAT' => ['OperationStatus' => OperationStatus::class],
         'ROOM'     => ['Room' => Room::class],
         'SOCRBASE' => ['AddressObjectType' => AddressObjectType::class],
         'STEAD'    => ['Stead' => Stead::class],
         'STRSTAT'  => ['StructureStatus' => StructureStatus::class],
+    ];
+
+    private $deleteDataClasses = [
+        'DEL_ACTSTAT'  => ['ActualStatus' => ActualStatus::class],
+        'DEL_ADDROBJ'  => ['Object' => AddressObject::class],
+        'DEL_CENTERST' => ['CenterStatus' => CenterStatus::class],
+        'DEL_CURENTST' => ['CurrentStatus' => CurrentStatus::class],
+        'DEL_ESTSTAT'  => ['EstateStatus' => EstateStatus::class],
+        'DEL_HOUSE'    => ['House' => House::class],
+        'DEL_HOUSEINT' => ['HouseInterval' => HouseInterval::class],
+        'DEL_HSTSTAT'  => ['HouseStateStatus' => HouseStateStatus::class],
+        'DEL_INTVSTAT' => ['IntervalStatus' => IntervalStatus::class],
+        'DEL_LANDMARK' => ['Landmark' => Landmark::class],
+        'DEL_NORMDOC'  => ['NormativeDocument' => NormativeDocument::class],
+        'DEL_OPERSTAT' => ['OperationStatus' => OperationStatus::class],
+        'DEL_ROOM'     => ['Room' => Room::class],
+        'DEL_SOCRBASE' => ['AddressObjectType' => AddressObjectType::class],
+        'DEL_STEAD'    => ['Stead' => Stead::class],
+        'DEL_STRSTAT'  => ['StructureStatus' => StructureStatus::class],
     ];
 
     /**
@@ -78,7 +99,8 @@ class InstallCommand extends AbstractCommand
             $this->getFiasService()->extractArchive($dirName, self::FIAS_FULL_DB_FILE, $dirName);
         }
 
-        $this->getFiasService()->saveXmlToDb($dirName, $this->transformersClasses, $output);
+        $this->getFiasService()->xmlDbHandler($dirName, $this->transformersClasses, FiasService::FILL_DB);
+        $this->getFiasService()->xmlDbHandler($dirName, $this->deleteDataClasses, FiasService::CLEAR_DB);
 
         return 0;
     }
