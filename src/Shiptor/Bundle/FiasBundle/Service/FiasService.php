@@ -173,12 +173,13 @@ class FiasService extends AbstractService
 
         $metadata = $this->getEm()->getClassMetadata(get_class($entity));
         $table = $metadata->getSchemaName().'.'.$metadata->getTableName();
-
-        $identifer = [
-            key($data) => current($data),
+        $identifierValue = current($metadata->getIdentifierValues($entity));
+        $identifierName = array_search($identifierValue, $data);
+        $identifier = [
+            $identifierName => $identifierValue,
         ];
 
-        if (!($result = $this->getEm()->getConnection()->update($table, $data, $identifer))) {
+        if (!($result = $this->getEm()->getConnection()->update($table, $data, $identifier))) {
             $result = $this->getEm()->getConnection()->insert($table, $data);
         }
 
