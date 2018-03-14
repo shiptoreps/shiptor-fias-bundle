@@ -2,9 +2,11 @@
 namespace Shiptor\Bundle\FiasBundle\Service;
 
 use Shiptor\Bundle\FiasBundle\AbstractService;
+use Shiptor\Bundle\FiasBundle\DataTransformer\AddressObjectTypeUpsertTransformer;
 use Shiptor\Bundle\FiasBundle\DataTransformer\AddressObjectUpsertTransformer;
 use Shiptor\Bundle\FiasBundle\DataTransformer\DataTransformerInterface;
 use Shiptor\Bundle\FiasBundle\Entity\AddressObject;
+use Shiptor\Bundle\FiasBundle\Entity\AddressObjectType;
 use Shiptor\Bundle\FiasBundle\Serializer\Converters\AttributeConverter;
 use Shiptor\Bundle\FiasBundle\Serializer\Normalizers\DateTimeNormalizer;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
@@ -173,10 +175,8 @@ class FiasService extends AbstractService
 
         $metadata = $this->getEm()->getClassMetadata(get_class($entity));
         $table = $metadata->getSchemaName().'.'.$metadata->getTableName();
-        $identifierValue = current($metadata->getIdentifierValues($entity));
-        $identifierName = array_search($identifierValue, $data);
         $identifier = [
-            $identifierName => $identifierValue,
+            key($data) => current($data),
         ];
 
         if (!($result = $this->getEm()->getConnection()->update($table, $data, $identifier))) {
@@ -201,6 +201,10 @@ class FiasService extends AbstractService
         try {
             if ($entity instanceof AddressObject) {
                 $transformer = new AddressObjectUpsertTransformer();
+
+                $this->upsert($entity, $transformer);
+            } elseif ($entity instanceof AddressObjectType) {
+                $transformer = new AddressObjectTypeUpsertTransformer();
 
                 $this->upsert($entity, $transformer);
             } else {
