@@ -2,10 +2,11 @@
 namespace Shiptor\Bundle\FiasBundle\Service;
 
 use Shiptor\Bundle\FiasBundle\AbstractService;
+use Shiptor\Bundle\FiasBundle\DataTransformer\AddressObjectUpsertTransformer;
+use Shiptor\Bundle\FiasBundle\DataTransformer\DataTransformerInterface;
 use Shiptor\Bundle\FiasBundle\Entity\AddressObject;
 use Shiptor\Bundle\FiasBundle\Serializer\Converters\AttributeConverter;
 use Shiptor\Bundle\FiasBundle\Serializer\Normalizers\DateTimeNormalizer;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
@@ -19,6 +20,10 @@ use XMLReader;
  */
 class FiasService extends AbstractService
 {
+    const CLEAR_DB = 'clear';
+    const FILL_DB = 'fill';
+
+
     /**
      * @param $destination
      * @param $fileName
@@ -29,6 +34,7 @@ class FiasService extends AbstractService
     public function downloadArchive($destination, $fileName, $url)
     {
         $this->makeDir($destination);
+
         try {
             file_put_contents($destination.DIRECTORY_SEPARATOR.$fileName, fopen($url, 'r'));
         } catch (\Exception $exception) {
@@ -84,80 +90,62 @@ class FiasService extends AbstractService
     }
 
     /**
-     * @param string          $scanDir
-     * @param array           $transformersClasses
-     * @param OutputInterface $output
-     * @return bool
+     * @param string $scanDir
+     * @param array  $transformersClasses
+     * @param string  $action
      *
+     * @return bool
      */
-    public function saveXmlToDb($scanDir, $transformersClasses, OutputInterface $output)
+    public function xmlDbHandler($scanDir, $transformersClasses, $action)
     {
         $pattern = '/^AS_((DEL_)?[A-Z]+)_\d{8}_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.XML$/';
 
-        $files = scandir($scanDir, SCANDIR_SORT_NONE);
+        $files = scandir($scanDir, SCANDIR_SORT_ASCENDING);
 
         $counter = 1;
-
-        $serializers = [];
+        $divisor = 20000;
 
         foreach ($files as $file) {
             $matches = [];
 
             if (preg_match($pattern, $file, $matches)) {
                 if (!isset($transformersClasses[$matches[1]])) {
-                    $output->writeln('Have no function to process '.$file.'.');
+                    echo 'Have no function to process '.$file.'.'.PHP_EOL;
 
                     continue;
                 }
 
-                $output->writeln('Processing to parse file: '.$file);
+                echo 'Processing to parse file: '.$file.PHP_EOL;
 
-                foreach ($transformersClasses[$matches[1]] as $tag => $class) {
-                    $converter = new AttributeConverter(new $class());
-                    $objectNormalizer = new ObjectNormalizer(null, $converter);
-                    $serializer = new Serializer([$objectNormalizer], [new XmlEncoder()]);
-                    $serializers[$tag] = $serializer;
+                $class = current($transformersClasses[$matches[1]]);
+                $tag = key($transformersClasses[$matches[1]]);
 
-                    unset($serializer);
-                    unset($objectNormalizer);
-                    unset($converter);
-                    unset($tag);
-                    unset($class);
-                }
+                $converter = new AttributeConverter(new $class());
+                $objectNormalizer = new ObjectNormalizer(null, $converter);
+                $serializer = new Serializer([$objectNormalizer], [new XmlEncoder()]);
 
                 $reader = new XMLReader();
                 $reader->open($scanDir.DIRECTORY_SEPARATOR.$file);
 
                 while ($reader->read()) {
-                    foreach ($transformersClasses[$matches[1]] as $tag => $class) {
-                        if ($reader->name === $tag && $reader->nodeType === XMLReader::ELEMENT) {
-                            $entity = $serializers[$tag]->deserialize($reader->readOuterXml(), $class, 'xml');
+                    if ($reader->name === $tag && $reader->nodeType === XMLReader::ELEMENT) {
+                        $entity = $serializer->deserialize($reader->readOuterXml(), $class, 'xml');
 
-                            DateTimeNormalizer::normalize($entity);
+                        DateTimeNormalizer::normalize($entity);
 
-                            if ($entity instanceof AddressObject) {
-                                if($entity->getNextId()) {
-                                    $entity->setNextId($this->getEm()->getReference('ShiptorFiasBundle:AddressObject', $entity->getNextId()));
-                                }
-                                $entity->setShortName($this->getEm()->getReference('ShiptorFiasBundle:AddressObjectType', $entity->getShortName()));
-                            }
-
-                            $this->getEm()->merge($entity);
-
-                            if ($counter % 20000 == 0) {
-                                $this->getEm()->flush();
-                                $this->getEm()->clear();
-
-                                $output->writeln($tag." --- ".$class." -- ".$counter);
-                            }
-
-                            $counter++;
-
-                            unset($entity);
+                        if (self::FILL_DB === $action) {
+                            $counter = $this->fillDatabase($entity, $counter, $divisor);
                         }
 
-                        unset($tag);
-                        unset($class);
+                        if (self::CLEAR_DB === $action) {
+                            $counter = $this->clearDatabase($entity, $counter, $divisor);
+                        }
+
+                        if ($counter % $divisor == 0) {
+                            echo $tag." --- ".$class." -- ".$counter.PHP_EOL;
+                        }
+
+                        unset($entity);
                     }
                 }
 
@@ -171,5 +159,92 @@ class FiasService extends AbstractService
         }
 
         return true;
+    }
+
+    /**
+     * @param mixed                    $entity
+     * @param DataTransformerInterface $transformer
+     *
+     * @return int
+     */
+    public function upsert($entity, DataTransformerInterface $transformer)
+    {
+        $data = $transformer->transform($entity);
+
+        $metadata = $this->getEm()->getClassMetadata(get_class($entity));
+        $table = $metadata->getSchemaName().'.'.$metadata->getTableName();
+        $identifierValue = current($metadata->getIdentifierValues($entity));
+        $identifierName = array_search($identifierValue, $data);
+        $identifier = [
+            $identifierName => $identifierValue,
+        ];
+
+        if (!($result = $this->getEm()->getConnection()->update($table, $data, $identifier))) {
+            $result = $this->getEm()->getConnection()->insert($table, $data);
+        }
+
+        if (!$result) {
+            $this->getLogger()->addError('Could not upsert!', ['exception' => $data]);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param mixed   $entity
+     * @param integer $counter
+     * @param integer $divisor
+     * @return integer
+     */
+    public function fillDatabase($entity, $counter, $divisor)
+    {
+        try {
+            if ($entity instanceof AddressObject) {
+                $transformer = new AddressObjectUpsertTransformer();
+
+                $this->upsert($entity, $transformer);
+            } else {
+                $this->getEm()->merge($entity);
+
+                if ($counter % $divisor  == 0) {
+                    $this->getEm()->flush();
+                    $this->getEm()->clear();
+                }
+            }
+
+            $counter++;
+        } catch (\Exception $exception) {
+            $this->getLogger()->addError($exception->getMessage(), ['exception' => $exception]);
+        }
+
+        return $counter;
+    }
+
+    /**
+     * @param mixed   $entity
+     * @param integer $counter
+     * @param integer $divisor
+     * @return integer
+     */
+    public function clearDatabase($entity, $counter, $divisor)
+    {
+        try {
+            $metadata = $this->getEm()->getClassMetadata(get_class($entity));
+            $entity = $this->getEm()->getRepository(get_class($entity))->findOneBy($metadata->getIdentifierValues($entity));
+
+            if ($entity) {
+                $this->getEm()->remove($entity);
+
+                $counter++;
+            }
+
+            if ($counter % $divisor  == 0) {
+                $this->getEm()->flush();
+            }
+        } catch (\Exception $exception) {
+            $this->getLogger()->addError($exception->getMessage(), ['exception' => $exception]);
+        }
+
+        return $counter;
     }
 }

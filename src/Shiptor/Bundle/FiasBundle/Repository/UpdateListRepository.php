@@ -26,6 +26,6 @@ class UpdateListRepository extends \Doctrine\ORM\EntityRepository
             $qb->where('ul.updatedAt IS NULL');
         }
 
-        return $qb;
+        return $qb->orderBy('ul.versionId', 'ASC');
     }
 }
