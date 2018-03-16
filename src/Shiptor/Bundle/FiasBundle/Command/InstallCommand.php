@@ -17,6 +17,7 @@ use Shiptor\Bundle\FiasBundle\Entity\NormativeDocument;
 use Shiptor\Bundle\FiasBundle\Entity\NormativeDocumentType;
 use Shiptor\Bundle\FiasBundle\Entity\OperationStatus;
 use Shiptor\Bundle\FiasBundle\Entity\Room;
+use Shiptor\Bundle\FiasBundle\Entity\RoomType;
 use Shiptor\Bundle\FiasBundle\Entity\Stead;
 use Shiptor\Bundle\FiasBundle\Entity\StructureStatus;
 use Shiptor\Bundle\FiasBundle\Service\FiasService;
@@ -49,6 +50,7 @@ class InstallCommand extends AbstractCommand
         'NORMDOC'  => ['NormativeDocument' => NormativeDocument::class],
         'OPERSTAT' => ['OperationStatus' => OperationStatus::class],
         'ROOM'     => ['Room' => Room::class],
+        'ROOMTYPE'     => ['RoomType' => RoomType::class],
         'SOCRBASE' => ['AddressObjectType' => AddressObjectType::class],
         'STEAD'    => ['Stead' => Stead::class],
         'STRSTAT'  => ['StructureStatus' => StructureStatus::class],
@@ -68,6 +70,7 @@ class InstallCommand extends AbstractCommand
         'DEL_NORMDOC'  => ['NormativeDocument' => NormativeDocument::class],
         'DEL_OPERSTAT' => ['OperationStatus' => OperationStatus::class],
         'DEL_ROOM'     => ['Room' => Room::class],
+        'DEL_ROOMTYPE' => ['RoomType' => RoomType::class],
         'DEL_SOCRBASE' => ['AddressObjectType' => AddressObjectType::class],
         'DEL_STEAD'    => ['Stead' => Stead::class],
         'DEL_STRSTAT'  => ['StructureStatus' => StructureStatus::class],
