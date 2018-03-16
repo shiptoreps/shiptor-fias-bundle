@@ -7,18 +7,18 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Room
  *
- * @ORM\Table(name="fias.room_type")
- * @ORM\Entity(repositoryClass="Shiptor\Bundle\FiasBundle\Repository\RoomTypeRepository")
+ * @ORM\Table(name="fias.flat_type")
+ * @ORM\Entity(repositoryClass="Shiptor\Bundle\FiasBundle\Repository\FlatTypeRepository")
  */
-class RoomType
+class FlatType
 {
     /**
      * @var int
      * @ORM\Id
      *
-     * @ORM\Column(name="rm_type_id", type="integer", nullable=false)
+     * @ORM\Column(name="fl_type_id", type="integer", nullable=false)
      */
-    private $rmTypeId;
+    private $flTypeId;
 
     /**
      * @var string
@@ -35,27 +35,27 @@ class RoomType
     private $shortName;
 
     /**
-     * Set rmTypeId
+     * Set flTypeId
      *
-     * @param integer $rmTypeId
+     * @param integer $flTypeId
      *
      * @return $this
      */
-    public function setRmTypeId($rmTypeId)
+    public function setFlTypeId($flTypeId)
     {
-        $this->rmTypeId = $rmTypeId;
+        $this->flTypeId = $flTypeId;
 
         return $this;
     }
 
     /**
-     * Get rmTypeId
+     * Get flTypeId
      *
      * @return integer
      */
-    public function getRmTypeId()
+    public function getFlTypeId()
     {
-        return $this->rmTypeId;
+        return $this->flTypeId;
     }
 
     /**
