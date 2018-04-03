@@ -155,21 +155,31 @@ class FiasApiService extends AbstractService
         $parent = [];
 
         foreach ($data as $item) {
-            /** @var AddressObject[] $addressObjects */
-            $addressObjects = $this
+            /** @var AddressObject $addressObject */
+            $addressObject = $this
                 ->getEm()
                 ->getRepository('ShiptorFiasBundle:AddressObject')
-                ->getActualAddress($item)
+                ->getAddressByPlainCode($item['plainCode'])
                 ->getQuery()
-                ->getResult();
+                ->getOneOrNullResult();
 
-            if (!array_key_exists(0, $addressObjects) || null === $addressObjects[0]->getParentGuid()) {
+            if (!$addressObject) {
                 $parent[] = null;
 
                 continue;
             }
 
-            $addressObject = $addressObjects[0];
+            try {
+                $addressObject = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->getLast($addressObject);
+            } catch (\Exception $exception) {
+                return ['error' => $exception->getMessage()];
+            }
+
+            if (null === $addressObject->getParentGuid()) {
+                $parent[] = null;
+
+                continue;
+            }
 
             $parents = $this
                 ->getEm()
@@ -188,19 +198,10 @@ class FiasApiService extends AbstractService
                     ->getQuery()
                     ->getResult();
 
-                /** @var AddressObject $firstParent */
-                $firstParent = $parents[0];
-
-                $nextId = $firstParent->getNextId();
-                $last = $firstParent;
-                while ($nextId) {
-                    /** @var AddressObject $last */
-                    $last = $nextId;
-                    try {
-                        $nextId = $nextId->getNextId();
-                    } catch (\Exception $exception) {
-                        return ['error' => $exception->getMessage()];
-                    }
+                try {
+                    $last = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->getLast($parents[0]);
+                } catch (\Exception $exception) {
+                    return ['error' => $exception->getMessage()];
                 }
 
                 $parents[0] = $last;
