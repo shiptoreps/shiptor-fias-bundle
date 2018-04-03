@@ -163,13 +163,13 @@ class FiasApiService extends AbstractService
                 ->getQuery()
                 ->getResult();
 
-            $addressObject = $addressObjects[0];
-
-            if (null === $addressObject->getParentGuid()) {
+            if (!array_key_exists(0, $addressObjects) || null === $addressObjects[0]->getParentGuid()) {
                 $parent[] = null;
 
                 continue;
             }
+
+            $addressObject = $addressObjects[0];
 
             $parents = $this
                 ->getEm()
