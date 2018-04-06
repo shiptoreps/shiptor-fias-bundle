@@ -320,6 +320,7 @@ class FiasApiService extends AbstractService
             $result['parent'] = $data['parent'];
             $result['region'] = $data['region'];
             $result['localLevel'] = $data['localLevel'];
+            $result['parentLocalLevel'] = $data['parentLocalLevel'];
         }
 
         if ($last->getActStatus() !== 1) {
@@ -405,6 +406,10 @@ class FiasApiService extends AbstractService
         return $this->container->get('shiptor_fias.service.address_object')->transform($last);
     }
 
+    /**
+     * @param AddressObject $addressObject
+     * @return array|null
+     */
     public function findParentAndRegionAndLoclLevel(AddressObject $addressObject)
     {
         /** @var AddressObject $parentAddressObject */
@@ -426,11 +431,13 @@ class FiasApiService extends AbstractService
         $lastParentAddressObject = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->getLast($parentAddressObject);
         $lastAddressObject = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->getLast($addressObject);
         list($localLevel, $region) = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->getRegionAndLocalLevel($lastAddressObject);
+        list($parentLocalLevel, $parentRegion) = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->getRegionAndLocalLevel($lastParentAddressObject);
 
         return [
             'parent' => $this->container->get('shiptor_fias.service.address_object')->transform($lastParentAddressObject),
             'region' => $this->container->get('shiptor_fias.service.address_object')->transform($region),
             'localLevel' => $localLevel,
+            'parentLocalLevel' => $parentLocalLevel,
         ];
     }
 }
