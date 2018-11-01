@@ -38,14 +38,6 @@ class FiasController extends AbstractController
                     'service' => 'shiptor_fias.service.fias_api',
                     'method' => 'getActualAddresses',
                 ],
-                'getAddressesSinceDate' => [
-                    'service' => 'shiptor_fias.service.fias_api',
-                    'method' => 'getAddressesSinceDate',
-                ],
-                'getGroupedActualAddresses' => [
-                    'service' => 'shiptor_fias.service.fias_api',
-                    'method' => 'getGroupedActualAddresses',
-                ],
                 'getDataByPostalCode' => [
                     'service' => 'shiptor_fias.service.fias_api',
                     'method' => 'getDataByPostalCode',
