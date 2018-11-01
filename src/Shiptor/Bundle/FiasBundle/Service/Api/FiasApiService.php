@@ -115,40 +115,6 @@ class FiasApiService extends AbstractService
      * @param RpcRequestInterface $request
      * @return array
      */
-    public function getAddressByUUID(RpcRequestInterface $request)
-    {
-        $aoId = $request->get('aoId');
-
-        /** @var AddressObjectRepository $repo */
-        $repo = $this
-            ->getDoctrine()
-            ->getRepository('ShiptorFiasBundle:AddressObject');
-
-        $nextID = $aoId;
-
-        do {
-            /** @var AddressObject $result */
-            $result = $repo
-                ->getNextId($nextID)
-                ->getQuery()
-                ->getOneOrNullResult();
-
-            if (null === $result->getNextId()) {
-                break;
-            }
-
-            $nextID = $result->getNextId();
-        } while ($result);
-
-        return [
-            'plainCode' => ($result) ? $result->getPlainCode() : null,
-        ];
-    }
-
-    /**
-     * @param RpcRequestInterface $request
-     * @return array
-     */
     public function getDataByPostalCode(RpcRequestInterface $request)
     {
         $postalCode = $request->get('postalCode');
