@@ -149,31 +149,6 @@ class FiasApiService extends AbstractService
      * @param RpcRequestInterface $request
      * @return array
      */
-    public function getActualParent(RpcRequestInterface $request)
-    {
-        $offset = $request->get('offset', 0);
-        $limit = $request->get('limit', 1);
-
-        $data = $this
-            ->getEm()
-            ->getRepository('ShiptorFiasBundle:AddressObject')
-            ->getAddressParents($offset, $limit)
-            ->getQuery()
-            ->getResult();
-
-        $result = [];
-        $addressObjectTransformer = $this->container->get('shiptor_fias.service.address_object');
-        foreach ($data as $key => $item) {
-            $result['addressObjects'][] = $addressObjectTransformer->transform($item);
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param RpcRequestInterface $request
-     * @return array
-     */
     public function getDataByPostalCode(RpcRequestInterface $request)
     {
         $postalCode = $request->get('postalCode');
