@@ -23,18 +23,18 @@ class FiasApiService extends AbstractService
      */
     public function getActualAddresses(RpcRequestInterface $request)
     {
-        $offset = $request->get('offset', 0);
-        $limit = $request->get('limit', 1);
-        $type = $request->get('type');
-
-        if (!is_numeric($type) || !in_array($type, AddressObject::DIV_TYPE_RANGE)) {
-            $type = null;
-        }
+        $params = [
+            'offset' => $request->get('offset', 0),
+            'limit' => $request->get('limit', 1),
+            'operationStatus' => $request->get('operationStatus'),
+            'actualStatus' => AddressObject::STATUS_ACTUAL,
+            'currentStatus' => AddressObject::STATUS_CURRNET,
+        ];
 
         $data = $this
             ->getEm()
             ->getRepository('ShiptorFiasBundle:AddressObject')
-            ->getAddressObject(AddressObject::STATUS_ACTUAL, $type, null, $offset, $limit)
+            ->getAddressObject($params)
             ->getQuery()
             ->getResult();
 

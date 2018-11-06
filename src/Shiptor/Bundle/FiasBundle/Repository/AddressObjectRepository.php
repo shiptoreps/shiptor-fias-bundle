@@ -16,15 +16,13 @@ use Shiptor\Bundle\FiasBundle\Entity\AddressObjectType;
  */
 class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
 {
+    const MAX_LIMIT = 100;
+
     /**
-     * @param \DateTime|null $date
-     * @param boolean|null   $actual
-     * @param integer|null   $offset
-     * @param integer|null   $limit
-     * @param integer|null   $type
+     * @param array $params
      * @return \Doctrine\ORM\QueryBuilder
      */
-    public function getAddressObject($actual = null, $type = null, \DateTime $date = null, $offset = 0, $limit = null)
+    public function getAddressObject(array $params)
     {
         $query = $this
             ->createQueryBuilder('ao')
@@ -36,33 +34,35 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
             ->orderBy('ao.aoLevel', 'ASC')
             ->addOrderBy('ao.aoId', 'DESC');
 
-        if (null !== $date) {
+        if (isset($params['updateDate'])) {
             $query
                 ->andWhere('ao.updateDate >= :date')
-                ->setParameter('date', $date);
+                ->setParameter('date', $params['updateDate']);
         }
 
-        if (null !== $actual) {
+        if (isset($params['actualStatus'])) {
             $query
                 ->andWhere('ao.actStatus = :actual')
-                ->setParameter('actual', $actual);
+                ->setParameter('actual', $params['actualStatus']);
         }
 
-        if (null !== $type) {
+        if (isset($params['currentStatus'])) {
             $query
-                ->andWhere('ao.divType = :type')
-                ->setParameter('type', $type);
+                ->andWhere('ao.currStatus = :current')
+                ->setParameter('current', $params['currentStatus']);
         }
 
-        if (null !== $limit) {
-            if ($limit > 100000) {
-                $limit = 100000;
-            }
-
+        if (isset($params['operationStatus'])) {
             $query
-                ->setFirstResult($offset)
-                ->setMaxResults($limit);
+                ->andWhere('ao.operStatus = :operation')
+                ->setParameter('operation', $params['operationStatus']);
         }
+
+        $params['limit'] = ($params['limit'] > self::MAX_LIMIT) ? self::MAX_LIMIT : $params['limit'];
+
+        $query
+            ->setFirstResult($params['offset'])
+            ->setMaxResults($params['limit']);
 
         return $query;
     }
