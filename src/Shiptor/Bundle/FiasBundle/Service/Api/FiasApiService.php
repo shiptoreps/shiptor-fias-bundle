@@ -27,11 +27,13 @@ class FiasApiService extends AbstractService
             'offset' => $request->get('offset', 0),
             'limit' => $request->get('limit', 1),
             'operationStatus' => $request->get('operationStatus'),
+            'updateDate' => $request->get('updateDate'),
             'actualStatus' => AddressObject::STATUS_ACTUAL,
             'currentStatus' => AddressObject::STATUS_CURRNET,
         ];
 
-        $data = $this
+        /** @var AddressObject[] $addressObjects */
+        $addressObjects = $this
             ->getEm()
             ->getRepository('ShiptorFiasBundle:AddressObject')
             ->getAddressObject($params)
@@ -39,9 +41,26 @@ class FiasApiService extends AbstractService
             ->getResult();
 
         $result = [];
-        $addressObjectTransformer = $this->container->get('shiptor_fias.service.address_object');
-        foreach ($data as $key => $item) {
-            $result['addressObjects'][] = $addressObjectTransformer->transform($item);
+        foreach ($addressObjects as $key => $addressObject) {
+            $result['offName'] = $addressObject->getOffName();
+            $result['scName'] = $addressObject->getShortName()->getScName();
+            $result['socrName'] = $addressObject->getShortName()->getSocrName();
+            $result['plainCode'] = $addressObject->getPlainCode();
+            $result['currStatus'] = $addressObject->getCurrStatus();
+            $result['actStatus'] = $addressObject->getActStatus();
+            $result['liveStatus'] = $addressObject->getLiveStatus();
+            $result['aoLevel'] = $addressObject->getAoLevel();
+
+            $data = $this->findParentAndRegionAndLoclLevel($addressObject);
+
+            if ($data) {
+                $result['parent'] = $data['parent'];
+                $result['region'] = $data['region'];
+                $result['localLevel'] = $data['localLevel'];
+                $result['parentLocalLevel'] = $data['parentLocalLevel'];
+            }
+
+            $result['addressObjects'][] = $result;
         }
 
         return $result;
