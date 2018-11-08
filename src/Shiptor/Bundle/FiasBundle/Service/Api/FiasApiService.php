@@ -42,25 +42,18 @@ class FiasApiService extends AbstractService
 
         $result = [];
         foreach ($addressObjects as $key => $addressObject) {
-            $result['offName'] = $addressObject->getOffName();
-            $result['scName'] = $addressObject->getShortName()->getScName();
-            $result['socrName'] = $addressObject->getShortName()->getSocrName();
-            $result['plainCode'] = $addressObject->getPlainCode();
-            $result['currStatus'] = $addressObject->getCurrStatus();
-            $result['actStatus'] = $addressObject->getActStatus();
-            $result['liveStatus'] = $addressObject->getLiveStatus();
-            $result['aoLevel'] = $addressObject->getAoLevel();
+            $data = [
+                'offName' => $addressObject->getOffName(),
+                'scName' => $addressObject->getShortName()->getScName(),
+                'socrName' => $addressObject->getShortName()->getSocrName(),
+                'plainCode' => $addressObject->getPlainCode(),
+                'currStatus' => $addressObject->getCurrStatus(),
+                'actStatus' => $addressObject->getActStatus(),
+                'liveStatus' => $addressObject->getLiveStatus(),
+                'aoLevel' => $addressObject->getAoLevel(),
+            ];
 
-            $data = $this->findParentAndRegionAndLoclLevel($addressObject);
-
-            if ($data) {
-                $result['parent'] = $data['parent'];
-                $result['region'] = $data['region'];
-                $result['localLevel'] = $data['localLevel'];
-                $result['parentLocalLevel'] = $data['parentLocalLevel'];
-            }
-
-            $result['addressObjects'][] = $result;
+            $result['addressObjects'][] = array_merge_recursive($data, $this->findParentAndRegionAndLoclLevel($addressObject));
         }
 
         return $result;
@@ -100,6 +93,7 @@ class FiasApiService extends AbstractService
     /**
      * @param RpcRequestInterface $request
      * @return array
+     * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function getActualPlainCode(RpcRequestInterface $request)
     {
@@ -127,23 +121,18 @@ class FiasApiService extends AbstractService
             $nextId = $nextId->getNextId();
         }
 
-        $result = [];
-        $result['offName'] = $last->getOffName();
-        $result['scName'] = $last->getShortName()->getScName();
-        $result['socrName'] = $last->getShortName()->getSocrName();
-        $result['plainCode'] = $last->getPlainCode();
-        $result['currStatus'] = $last->getCurrStatus();
-        $result['actStatus'] = $last->getActStatus();
-        $result['liveStatus'] = $last->getLiveStatus();
-        $result['aoLevel'] = $last->getAoLevel();
+        $result = [
+            'offName' => $addressObject->getOffName(),
+            'scName' => $addressObject->getShortName()->getScName(),
+            'socrName' => $addressObject->getShortName()->getSocrName(),
+            'plainCode' => $addressObject->getPlainCode(),
+            'currStatus' => $addressObject->getCurrStatus(),
+            'actStatus' => $addressObject->getActStatus(),
+            'liveStatus' => $addressObject->getLiveStatus(),
+            'aoLevel' => $addressObject->getAoLevel(),
+        ];
 
-        $data = $this->findParentAndRegionAndLoclLevel($last);
-        if ($data) {
-            $result['parent'] = $data['parent'];
-            $result['region'] = $data['region'];
-            $result['localLevel'] = $data['localLevel'];
-            $result['parentLocalLevel'] = $data['parentLocalLevel'];
-        }
+        $result = array_merge_recursive($result, $this->findParentAndRegionAndLoclLevel($addressObject));
 
         if ($last->getActStatus() !== 1) {
             return [
@@ -230,7 +219,8 @@ class FiasApiService extends AbstractService
 
     /**
      * @param AddressObject $addressObject
-     * @return array|null
+     * @return array
+     * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function findParentAndRegionAndLoclLevel(AddressObject $addressObject)
     {
@@ -247,7 +237,7 @@ class FiasApiService extends AbstractService
             ->getOneOrNullResult();
 
         if (!$parentAddressObject) {
-            return null;
+            return [];
         }
         /** @var AddressObject $lastAddressObject */
         $lastParentAddressObject = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->getLast($parentAddressObject);
