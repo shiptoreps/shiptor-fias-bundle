@@ -43,18 +43,7 @@ class FiasApiService extends AbstractService
 
         $result = [];
         foreach ($addressObjects as $key => $addressObject) {
-            $data = [
-                'offName' => $addressObject->getOffName(),
-                'scName' => $addressObject->getShortName()->getScName(),
-                'socrName' => $addressObject->getShortName()->getSocrName(),
-                'plainCode' => $addressObject->getPlainCode(),
-                'currStatus' => $addressObject->getCurrStatus(),
-                'actStatus' => $addressObject->getActStatus(),
-                'liveStatus' => $addressObject->getLiveStatus(),
-                'aoLevel' => $addressObject->getAoLevel(),
-            ];
-
-            $result['addressObjects'][] = array_merge_recursive($data, $this->findParentAndRegionAndLoclLevel($addressObject));
+            $result['addressObjects'][] = $this->findParentAndRegionAndLoclLevel($addressObject);
         }
 
         return $result;
@@ -114,28 +103,9 @@ class FiasApiService extends AbstractService
             ];
         }
 
-        $nextId = $addressObject->getNextId();
-        $last = $addressObject;
-        while ($nextId) {
-            /** @var AddressObject $last */
-            $last = $nextId;
-            $nextId = $nextId->getNextId();
-        }
+        $result = $this->findParentAndRegionAndLoclLevel($addressObject);
 
-        $result = [
-            'offName' => $addressObject->getOffName(),
-            'scName' => $addressObject->getShortName()->getScName(),
-            'socrName' => $addressObject->getShortName()->getSocrName(),
-            'plainCode' => $addressObject->getPlainCode(),
-            'currStatus' => $addressObject->getCurrStatus(),
-            'actStatus' => $addressObject->getActStatus(),
-            'liveStatus' => $addressObject->getLiveStatus(),
-            'aoLevel' => $addressObject->getAoLevel(),
-        ];
-
-        $result = array_merge_recursive($result, $this->findParentAndRegionAndLoclLevel($addressObject));
-
-        if ($last->getActStatus() !== 1) {
+        if ($result['actStatus'] !== 1) {
             return [
                 'status' => 'error',
                 'error'  => "Returned data do not have actual status 1.",
@@ -143,7 +113,7 @@ class FiasApiService extends AbstractService
             ];
         }
 
-        if ($last->getCurrStatus() !== 0) {
+        if ($result['currStatus'] !== 0) {
             return [
                 'status' => 'error',
                 'error'  => "Returned data do not have current status 0.",
@@ -225,28 +195,51 @@ class FiasApiService extends AbstractService
      */
     public function findParentAndRegionAndLoclLevel(AddressObject $addressObject)
     {
+        /** @var AddressObject $lastAddressObject */
+        $lastAddressObject = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->getLast($addressObject);
+
         /** @var AddressObject $parentAddressObject */
         $parentAddressObject = $this
             ->getEm()
             ->getRepository('ShiptorFiasBundle:AddressObject')
             ->createQueryBuilder('ao')
             ->where('ao.aoGuid = :parent')
-            ->setParameter('parent', $addressObject->getParentGuid())
+            ->setParameter('parent', $lastAddressObject->getParentGuid())
             ->setMaxResults(1)
             ->orderBy('ao.plainCode')
             ->getQuery()
             ->getOneOrNullResult();
 
         if (!$parentAddressObject) {
-            return [];
+            return  [
+                'offName' => $lastAddressObject->getOffName(),
+                'scName' => $lastAddressObject->getShortName()->getScName(),
+                'socrName' => $lastAddressObject->getShortName()->getSocrName(),
+                'plainCode' => $lastAddressObject->getPlainCode(),
+                'currStatus' => $lastAddressObject->getCurrStatus(),
+                'actStatus' => $lastAddressObject->getActStatus(),
+                'liveStatus' => $lastAddressObject->getLiveStatus(),
+                'aoLevel' => $lastAddressObject->getAoLevel(),
+                'parent' => null,
+                'region' => null,
+                'localLevel' => 1,
+                'parentLocalLevel' => null,
+            ];
         }
-        /** @var AddressObject $lastAddressObject */
-        $lastParentAddressObject = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->getLast($parentAddressObject);
-        $lastAddressObject = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->getLast($addressObject);
+
         list($localLevel, $region) = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->getRegionAndLocalLevel($lastAddressObject);
+        $lastParentAddressObject = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->getLast($parentAddressObject);
         list($parentLocalLevel, $parentRegion) = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->getRegionAndLocalLevel($lastParentAddressObject);
 
         return [
+            'offName' => $lastAddressObject->getOffName(),
+            'scName' => $lastAddressObject->getShortName()->getScName(),
+            'socrName' => $lastAddressObject->getShortName()->getSocrName(),
+            'plainCode' => $lastAddressObject->getPlainCode(),
+            'currStatus' => $lastAddressObject->getCurrStatus(),
+            'actStatus' => $lastAddressObject->getActStatus(),
+            'liveStatus' => $lastAddressObject->getLiveStatus(),
+            'aoLevel' => $lastAddressObject->getAoLevel(),
             'parent' => $this->container->get('shiptor_fias.service.address_object')->transform($lastParentAddressObject),
             'region' => $this->container->get('shiptor_fias.service.address_object')->transform($region),
             'localLevel' => $localLevel,
