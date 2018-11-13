@@ -1,6 +1,7 @@
 <?php
 namespace Shiptor\Bundle\FiasBundle\Service\Api;
 
+use Doctrine\Common\Collections\Criteria;
 use Moriony\RpcServer\Exception\InvalidParamException;
 use Moriony\RpcServer\Request\RpcRequestInterface;
 use Pagerfanta\Pagerfanta;
@@ -250,6 +251,29 @@ class FiasApiService extends AbstractService
             'region' => $this->container->get('shiptor_fias.service.address_object')->transform($region),
             'localLevel' => $localLevel,
             'parentLocalLevel' => $parentLocalLevel,
+        ];
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getLastUpdateDate()
+    {
+        $lastVersion = $this->getEm()->getRepository('ShiptorFiasBundle:UpdateList')->findLast();
+
+        if (!$lastVersion) {
+            return null;
+        }
+
+        $textDate = $lastVersion->getTextVersion();
+
+        if (preg_match('/\d{2}.\d{2}.\d{4}/', $lastVersion->getTextVersion(), $matches)) {
+            $textDate = $matches[0];
+        }
+
+        return [
+            'version' => $lastVersion->getVersionId(),
+            'date' => $textDate,
         ];
     }
 }

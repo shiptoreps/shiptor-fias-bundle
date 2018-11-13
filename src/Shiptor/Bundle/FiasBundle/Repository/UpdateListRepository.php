@@ -1,6 +1,9 @@
 <?php
 namespace Shiptor\Bundle\FiasBundle\Repository;
 
+use Doctrine\Common\Collections\Criteria;
+use Shiptor\Bundle\FiasBundle\Entity\UpdateList;
+
 /**
  * UpdateListRepository
  *
@@ -27,5 +30,15 @@ class UpdateListRepository extends \Doctrine\ORM\EntityRepository
         }
 
         return $qb->orderBy('ul.versionId', 'ASC');
+    }
+
+    /**
+     * @return UpdateList
+     */
+    public function findLast()
+    {
+        $versions = $this->findBy([], ['versionId' => Criteria::DESC], 1);
+
+        return count($versions) ? $versions[0] : null;
     }
 }
