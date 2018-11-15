@@ -157,7 +157,7 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
             try {
                 $nextAddress = $nextAddress->getNextId();
             } catch (\Exception $exception) {
-                if (preg_match('IDs aoId(.+) was not found', $exception->getMessage())) {
+                if (preg_match('/IDs aoId(.+) was not found/i', $exception->getMessage())) {
                     throw new ObjectDeletedException();
                 }
 

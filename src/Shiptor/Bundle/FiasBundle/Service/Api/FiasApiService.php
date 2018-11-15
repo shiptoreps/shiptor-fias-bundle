@@ -106,6 +106,10 @@ class FiasApiService extends AbstractService
 
         $result = $this->findParentAndRegionAndLoclLevel($addressObject);
 
+        if ($result['status'] === 'error') {
+            return $result;
+        }
+
         if ($result['actStatus'] !== 1) {
             return [
                 'status' => 'error',
@@ -197,8 +201,15 @@ class FiasApiService extends AbstractService
      */
     public function findParentAndRegionAndLoclLevel(AddressObject $addressObject)
     {
-        /** @var AddressObject $lastAddressObject */
-        $lastAddressObject = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->getLast($addressObject);
+        try {
+            /** @var AddressObject $lastAddressObject */
+            $lastAddressObject = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->getLast($addressObject);
+        } catch (ObjectDeletedException $exception) {
+            return [
+                'status' => 'error',
+                'message' => "Cannot found actual object by requested code ({$addressObject->getPlainCode()})",
+            ];
+        }
 
         /** @var AddressObject $parentAddressObject */
         $parentAddressObject = $this
@@ -233,8 +244,8 @@ class FiasApiService extends AbstractService
             list($localLevel, $region) = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->getRegionAndLocalLevel($lastAddressObject);
         } catch (ObjectDeletedException $exception) {
             return [
-              'status' => 'error',
-              'message' => "Region was not found. Need to check region of requested object by code {{$lastAddressObject->getPlainCode()}}",
+                'status' => 'error',
+                'message' => "Region was not found. Need to check region of requested object by code ({$lastAddressObject->getPlainCode()})",
             ];
         }
 
@@ -244,7 +255,7 @@ class FiasApiService extends AbstractService
         } catch (ObjectDeletedException $exception) {
             return [
                 'status' => 'error',
-                'message' => "Parent was not found. Need to check parent of requested object by code {{$lastAddressObject->getPlainCode()}}",
+                'message' => "Parent was not found. Need to check parent of requested object by code ({$lastAddressObject->getPlainCode()})",
             ];
         }
 
