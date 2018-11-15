@@ -8,6 +8,7 @@ use Pagerfanta\Pagerfanta;
 use Shiptor\Bundle\FiasBundle\AbstractService;
 use Shiptor\Bundle\FiasBundle\Entity\AddressObject;
 use Shiptor\Bundle\FiasBundle\Exception\BasicException;
+use Shiptor\Bundle\FiasBundle\Exception\ObjectDeletedException;
 use Shiptor\Bundle\FiasBundle\Repository\AddressObjectRepository;
 use Shiptor\Bundle\FiasBundle\Service\PagerService;
 
@@ -192,6 +193,7 @@ class FiasApiService extends AbstractService
      * @param AddressObject $addressObject
      * @return array
      * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws \Exception
      */
     public function findParentAndRegionAndLoclLevel(AddressObject $addressObject)
     {
@@ -227,9 +229,24 @@ class FiasApiService extends AbstractService
             ];
         }
 
-        list($localLevel, $region) = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->getRegionAndLocalLevel($lastAddressObject);
-        $lastParentAddressObject = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->getLast($parentAddressObject);
-        list($parentLocalLevel, $parentRegion) = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->getRegionAndLocalLevel($lastParentAddressObject);
+        try {
+            list($localLevel, $region) = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->getRegionAndLocalLevel($lastAddressObject);
+        } catch (ObjectDeletedException $exception) {
+            return [
+              'status' => 'error',
+              'message' => "Region was not found. Need to check region of requested object by code {{$lastAddressObject->getPlainCode()}}",
+            ];
+        }
+
+        try {
+            $lastParentAddressObject = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->getLast($parentAddressObject);
+            list($parentLocalLevel, $parentRegion) = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->getRegionAndLocalLevel($lastParentAddressObject);
+        } catch (ObjectDeletedException $exception) {
+            return [
+                'status' => 'error',
+                'message' => "Parent was not found. Need to check parent of requested object by code {{$lastAddressObject->getPlainCode()}}",
+            ];
+        }
 
         return [
             'offName' => $lastAddressObject->getOffName(),
