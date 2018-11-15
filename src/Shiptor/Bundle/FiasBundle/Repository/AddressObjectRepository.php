@@ -7,6 +7,7 @@ use Doctrine\ORM\Query\Expr\Join;
 use Ramsey\Uuid\Uuid;
 use Shiptor\Bundle\FiasBundle\Entity\AddressObject;
 use Shiptor\Bundle\FiasBundle\Entity\AddressObjectType;
+use Shiptor\Bundle\FiasBundle\Exception\ObjectDeletedException;
 
 /**
  * AddressObjectRepository
@@ -143,6 +144,8 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
     /**
      * @param AddressObject $addressObject
      * @return AddressObject
+     * @throws ObjectDeletedException
+     * @throws \Exception
      */
     public function getLast(AddressObject $addressObject)
     {
@@ -151,7 +154,16 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
         while ($nextAddress) {
             /** @var AddressObject $lastAddress */
             $lastAddress = $nextAddress;
-            $nextAddress = $nextAddress->getNextId();
+            try {
+                $nextAddress = $nextAddress->getNextId();
+            } catch (\Exception $exception) {
+                if (preg_match('IDs aoId(.+) was not found', $exception->getMessage())) {
+                    throw new ObjectDeletedException();
+                }
+
+                throw $exception;
+            }
+
         }
 
         return $lastAddress;
@@ -160,6 +172,8 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
     /**
      * @param AddressObject $addressObject
      * @return array
+     * @throws ObjectDeletedException
+     * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function getRegionAndLocalLevel(AddressObject $addressObject)
     {
