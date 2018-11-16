@@ -297,4 +297,47 @@ class FiasApiService extends AbstractService
             'date' => $textDate,
         ];
     }
+
+    /**
+     * @param RpcRequestInterface $request
+     * @return array
+     * @throws ObjectDeletedException|\Exception
+     */
+    public function getPreviousCodes(RpcRequestInterface $request)
+    {
+        $code = $request->get('plainCode');
+
+        $codes = [];
+        /** @var AddressObject $addressObject */
+        $addressObject = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')
+            ->createQueryBuilder('ao')
+            ->where('ao.plainCode = :plainCode')
+            ->orWhere('ao.code = :plainCode')
+            ->setParameter('plainCode', $code)
+            ->setMaxResults(1)
+            ->orderBy('ao.updateDate', 'ASC')
+            ->getQuery()->getOneOrNullResult();
+
+        if (!$addressObject) {
+            return [];
+        }
+
+        $codes[] = $addressObject->getPlainCode();
+        $prevAddress = $addressObject->getPrevId();
+        while ($prevAddress) {
+            try {
+                $codes[] = $prevAddress->getPlainCode();
+                $prevAddress = $prevAddress->getPrevId();
+            } catch (\Exception $exception) {
+                if (preg_match('/IDs aoId(.+) was not found/i', $exception->getMessage())) {
+                    throw new ObjectDeletedException();
+                }
+
+                throw $exception;
+            }
+
+        }
+
+        return array_unique($codes);
+    }
 }
