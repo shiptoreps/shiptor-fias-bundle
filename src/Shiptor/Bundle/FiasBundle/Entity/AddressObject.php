@@ -190,9 +190,10 @@ class AddressObject
     private $aoId;
 
     /**
-     * @var Uuid
+     * @var AddressObject
      *
-     * @ORM\Column(name="prev_id", type="uuid", nullable=true)
+     * @ORM\ManyToOne(targetEntity="AddressObject", inversedBy="aoId")
+     * @ORM\JoinColumn(name="prev_id", referencedColumnName="ao_id", nullable=true)
      */
     private $prevId;
 
@@ -867,7 +868,7 @@ class AddressObject
     /**
      * Set prevId
      *
-     * @param Uuid $prevId
+     * @param AddressObject|null $prevId
      *
      * @return AddressObject
      */
@@ -881,7 +882,7 @@ class AddressObject
     /**
      * Get prevId
      *
-     * @return Uuid
+     * @return AddressObject|null
      */
     public function getPrevId()
     {
