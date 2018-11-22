@@ -169,6 +169,12 @@ class Stead
     private $divType;
 
     /**
+     * @var \DateTime
+     * @ORM\Column(name="removed_at", type="datetime")
+     */
+    private $removedAt;
+
+    /**
      * Set number
      *
      * @param string $number
@@ -694,6 +700,30 @@ class Stead
     public function getDivType()
     {
         return $this->divType;
+    }
+
+    /**
+     * Set removedAt
+     *
+     * @param \DateTime $removedAt
+     *
+     * @return $this
+     */
+    public function setRemovedAt(\DateTime $removedAt)
+    {
+        $this->removedAt = $removedAt;
+
+        return $this;
+    }
+
+    /**
+     * Get removedAt
+     *
+     * @return \DateTime
+     */
+    public function getRemovedAt()
+    {
+        return $this->removedAt;
     }
 }
 

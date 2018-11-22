@@ -134,6 +134,12 @@ class Room
     private $cadNum;
 
     /**
+     * @var \DateTime
+     * @ORM\Column(name="removed_at", type="datetime")
+     */
+    private $removedAt;
+
+    /**
      * Set postalCode
      *
      * @param string $postalCode
@@ -539,5 +545,29 @@ class Room
     public function getCadNum()
     {
         return $this->cadNum;
+    }
+
+    /**
+     * Set removedAt
+     *
+     * @param \DateTime $removedAt
+     *
+     * @return $this
+     */
+    public function setRemovedAt(\DateTime $removedAt)
+    {
+        $this->removedAt = $removedAt;
+
+        return $this;
+    }
+
+    /**
+     * Get removedAt
+     *
+     * @return \DateTime
+     */
+    public function getRemovedAt()
+    {
+        return $this->removedAt;
     }
 }

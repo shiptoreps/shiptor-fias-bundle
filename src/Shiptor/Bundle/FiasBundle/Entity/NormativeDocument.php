@@ -57,6 +57,12 @@ class NormativeDocument
     private $docImgId;
 
     /**
+     * @var \DateTime
+     * @ORM\Column(name="removed_at", type="datetime")
+     */
+    private $removedAt;
+
+    /**
      * Set normDocId
      *
      * @param Uuid $normDocId
@@ -198,6 +204,30 @@ class NormativeDocument
     public function getDocImgId()
     {
         return $this->docImgId;
+    }
+
+    /**
+     * Set removedAt
+     *
+     * @param \DateTime $removedAt
+     *
+     * @return $this
+     */
+    public function setRemovedAt(\DateTime $removedAt)
+    {
+        $this->removedAt = $removedAt;
+
+        return $this;
+    }
+
+    /**
+     * Get removedAt
+     *
+     * @return \DateTime
+     */
+    public function getRemovedAt()
+    {
+        return $this->removedAt;
     }
 }
 

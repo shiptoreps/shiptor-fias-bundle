@@ -24,7 +24,9 @@ use Shiptor\Bundle\FiasBundle\Entity\StructureStatus;
 use Shiptor\Bundle\FiasBundle\Entity\UpdateList;
 use Shiptor\Bundle\FiasBundle\Service\FiasService;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -84,7 +86,12 @@ class UpdateCommand extends AbstractCommand
     {
         $this
             ->setName('shiptor:fias:update')
-            ->addArgument('version', InputArgument::OPTIONAL, 'Version of update:')
+            ->setDefinition(
+                new InputDefinition([
+                    new InputOption('update-version', 'uv', InputOption::VALUE_OPTIONAL, 'Version of update'),
+                    new InputOption('complete', 'c', InputOption::VALUE_OPTIONAL, 'Complete version of update'),
+                ])
+            )
             ->setDescription('Get updates from fias.nalog.ru DownloadService.');
     }
 
@@ -98,7 +105,8 @@ class UpdateCommand extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $version = $input->getArgument('version');
+        $complete = $input->getOption('complete');
+        $version = $input->getOption('update-version');
         /** @var UpdateList[] $updateList */
         $updateList = $this->getEm()
             ->getRepository('ShiptorFiasBundle:UpdateList')
@@ -109,8 +117,13 @@ class UpdateCommand extends AbstractCommand
         foreach ($updateList as $item) {
             $dirName = sys_get_temp_dir().DIRECTORY_SEPARATOR.self::FIAS_UPDATE_DIR.$item->getVersionId();
             $fileName = self::FIAS_UPDATE_FILE.$item->getVersionId().self::FILE_EXTENTION;
+            $url = $item->getFiasDeltaXmlUrl();
 
-            if ($this->getFiasService()->downloadArchive($dirName, $fileName, $item->getFiasDeltaXmlUrl())) {
+            if ($complete) {
+                $url = $item->getFiasCompleteXmlUrl();
+            }
+
+            if ($this->getFiasService()->downloadArchive($dirName, $fileName, $url)) {
                 $this->getFiasService()->extractArchive($dirName, $fileName, $dirName);
             } else {
                 continue;
