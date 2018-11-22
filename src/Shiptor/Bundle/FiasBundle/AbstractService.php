@@ -22,4 +22,12 @@ abstract class AbstractService
     {
         $this->container = $container;
     }
+
+    /**
+     * @return object|DataTransformer\Api\AddressObjectDataTransformer
+     */
+    public function getAddressObjectTransformer()
+    {
+        return $this->container->get('shiptor_fias.service.address_object');
+    }
 }

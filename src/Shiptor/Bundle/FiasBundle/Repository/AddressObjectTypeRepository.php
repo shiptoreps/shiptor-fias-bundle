@@ -2,6 +2,8 @@
 
 namespace Shiptor\Bundle\FiasBundle\Repository;
 
+use Shiptor\Bundle\FiasBundle\Entity\AddressObject;
+
 /**
  * AddressObjectTypeRepository
  *
@@ -10,4 +12,21 @@ namespace Shiptor\Bundle\FiasBundle\Repository;
  */
 class AddressObjectTypeRepository extends \Doctrine\ORM\EntityRepository
 {
+    /**
+     * @param AddressObject $addressObject
+     * @return mixed
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function getAddressType(AddressObject $addressObject)
+    {
+        return $this
+            ->createQueryBuilder('aot')
+            ->where('aot.level = :level')
+            ->andWhere('aot.scName = :shortType')
+            ->setParameter('shortType', $addressObject->getShortName()->getScName())
+            ->setParameter('level', $addressObject->getAoLevel())
+            ->setMaxResults(1)
+            ->getQuery()->getOneOrNullResult()
+            ;
+    }
 }

@@ -13,4 +13,12 @@ abstract class AbstractCommand extends ContainerAwareCommand
     {
         return $this->getContainer()->get('doctrine.orm.entity_manager');
     }
+
+    /**
+     * @return \Symfony\Bridge\Monolog\Logger
+     */
+    protected function getLogger()
+    {
+        return $this->getContainer()->get('logger');
+    }
 }

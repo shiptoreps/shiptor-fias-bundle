@@ -5,12 +5,33 @@ namespace Shiptor\Bundle\FiasBundle\DataTransformer\Api;
 use Shiptor\Bundle\FiasBundle\Entity\AddressObject;
 use Shiptor\Bundle\FiasBundle\Entity\AddressObjectType;
 use Symfony\Component\Form\DataTransformerInterface;
+use Symfony\Component\Validator\Exception\MissingOptionsException;
 
 /**
  * Class AddressObjectDataTransformer
  */
 class AddressObjectDataTransformer implements DataTransformerInterface
 {
+    /**
+     * @var string
+     */
+    private $level;
+
+    /**
+     * @var string
+     */
+    private $socrName;
+
+    /**
+     * @var string
+     */
+    private $scName;
+
+    /**
+     * @var string
+     */
+    private $kodTsT;
+
     /**
      * @param AddressObject $addressObject
      * @return array|null
@@ -28,7 +49,7 @@ class AddressObjectDataTransformer implements DataTransformerInterface
                 'nextId' => $addressObject->getNextId(),
                 'formalName' => $addressObject->getFormalName(),
                 'offName' => $addressObject->getOffName(),
-                'shortName' => $this->setShortName($addressObject->getShortName()),
+                'shortName' => $this->getShortName(),
                 'aoLevel' => $addressObject->getAoLevel(),
                 'regionCode' => $addressObject->getRegionCode(),
                 'areaCode' => $addressObject->getAreaCode(),
@@ -74,12 +95,32 @@ class AddressObjectDataTransformer implements DataTransformerInterface
         throw new \LogicException('Method not implemented.');
     }
 
+    /**
+     * @param AddressObjectType $addressObjectType
+     * @return $this
+     */
     public function setShortName(AddressObjectType $addressObjectType) {
+        $this->level = $addressObjectType->getLevel();
+        $this->socrName = $addressObjectType->getSocrName();
+        $this->scName = $addressObjectType->getScName();
+        $this->kodTsT = $addressObjectType->getKodTsT();
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getShortName() {
+        if (!$this->level || !$this->socrName || !$this->scName || !$this->kodTsT) {
+            throw new MissingOptionsException('Transformer will contain all parameters', ['level', 'socrName', 'scName', 'kodTsT']);
+        }
+
         return [
-            'level' => $addressObjectType->getLevel(),
-            'socrName' => $addressObjectType->getSocrName(),
-            'scName' => $addressObjectType->getScName(),
-            'kodTsT' => $addressObjectType->getKodTsT(),
+            'level' => $this->level,
+            'socrName' => $this->socrName,
+            'scName' => $this->scName,
+            'kodTsT' => $this->kodTsT,
         ];
     }
 }
