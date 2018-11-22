@@ -290,6 +290,12 @@ class AddressObject
     private $divType;
 
     /**
+     * @var \DateTime
+     * @ORM\Column(name="removed_at", type="datetime")
+     */
+    private $removedAt;
+
+    /**
      * Set aoGuid
      *
      * @param Uuid $aoGuid
@@ -1199,6 +1205,30 @@ class AddressObject
     public function getDivType()
     {
         return $this->divType;
+    }
+
+    /**
+     * Set removedAt
+     *
+     * @param \DateTime $removedAt
+     *
+     * @return AddressObject
+     */
+    public function setRemovedAt(\DateTime $removedAt)
+    {
+        $this->removedAt = $removedAt;
+
+        return $this;
+    }
+
+    /**
+     * Get removedAt
+     *
+     * @return \DateTime
+     */
+    public function getRemovedAt()
+    {
+        return $this->removedAt;
     }
 }
 
