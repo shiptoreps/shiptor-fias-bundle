@@ -1,16 +1,11 @@
 <?php
 namespace Shiptor\Bundle\FiasBundle\Service\Api;
 
-use Doctrine\Common\Collections\Criteria;
 use Moriony\RpcServer\Exception\InvalidParamException;
 use Moriony\RpcServer\Request\RpcRequestInterface;
-use Pagerfanta\Pagerfanta;
 use Shiptor\Bundle\FiasBundle\AbstractService;
 use Shiptor\Bundle\FiasBundle\Entity\AddressObject;
-use Shiptor\Bundle\FiasBundle\Exception\BasicException;
 use Shiptor\Bundle\FiasBundle\Exception\ObjectDeletedException;
-use Shiptor\Bundle\FiasBundle\Repository\AddressObjectRepository;
-use Shiptor\Bundle\FiasBundle\Service\PagerService;
 
 /**
  * Class FiasApi
@@ -106,7 +101,7 @@ class FiasApiService extends AbstractService
 
         $result = $this->findParentAndRegionAndLoclLevel($addressObject);
 
-        if ($result['status'] === 'error') {
+        if (isset($result['status']) && $result['status'] === 'error') {
             return $result;
         }
 
@@ -147,8 +142,11 @@ class FiasApiService extends AbstractService
         if (!$address) {
             throw new InvalidParamException('Address not found');
         }
+        $addressObjectType = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObjectType')->getAddressType($address);
+        $transformer = $this->getAddressObjectTransformer();
+        $transformer->setShortName($addressObjectType);
 
-        return $this->container->get('shiptor_fias.service.address_object')->transform($address);
+        return $transformer->transform($address);
     }
 
     /**
@@ -159,10 +157,12 @@ class FiasApiService extends AbstractService
     {
         $plainCode = $request->get('code');
 
+        $addressObjectRepo = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject');
+        $addressObjectTypeRepo = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObjectType');
+
+
         /** @var AddressObject $addressObject */
-        $addressObject = $this
-            ->getEm()
-            ->getRepository('ShiptorFiasBundle:AddressObject')
+        $addressObject = $addressObjectRepo
             ->getAddressByPlainCode($plainCode)
             ->andWhere('ao.actStatus = :actStatus')
             ->andWhere('ao.nextId IS NULL')
@@ -175,9 +175,7 @@ class FiasApiService extends AbstractService
         }
 
         /** @var AddressObject $parentAddressObject */
-        $parentAddressObject = $this
-            ->getEm()
-            ->getRepository('ShiptorFiasBundle:AddressObject')
+        $parentAddressObject = $addressObjectRepo
             ->getDirectParent($addressObject)
             ->getQuery()
             ->getOneOrNullResult();
@@ -190,7 +188,10 @@ class FiasApiService extends AbstractService
             $nextId = $nextId->getNextId();
         }
 
-        return $this->container->get('shiptor_fias.service.address_object')->transform($last);
+        $transformer = $this->getAddressObjectTransformer();
+        $transformer->setShortName($addressObjectTypeRepo->getAddressType($last));
+
+        return $transformer->transform($last);
     }
 
     /**
@@ -201,9 +202,12 @@ class FiasApiService extends AbstractService
      */
     public function findParentAndRegionAndLoclLevel(AddressObject $addressObject)
     {
+        $addressObjectRepo = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject');
+        $addressObjectTypeRepo = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObjectType');
+
         try {
             /** @var AddressObject $lastAddressObject */
-            $lastAddressObject = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->getLast($addressObject);
+            $lastAddressObject = $addressObjectRepo->getLast($addressObject);
         } catch (ObjectDeletedException $exception) {
             return [
                 'status' => 'error',
@@ -212,9 +216,7 @@ class FiasApiService extends AbstractService
         }
 
         /** @var AddressObject $parentAddressObject */
-        $parentAddressObject = $this
-            ->getEm()
-            ->getRepository('ShiptorFiasBundle:AddressObject')
+        $parentAddressObject = $addressObjectRepo
             ->createQueryBuilder('ao')
             ->where('ao.aoGuid = :parent')
             ->setParameter('parent', $lastAddressObject->getParentGuid())
@@ -223,11 +225,13 @@ class FiasApiService extends AbstractService
             ->getQuery()
             ->getOneOrNullResult();
 
+        $addressType = $addressObjectTypeRepo->getAddressType($lastAddressObject);
+
         if (!$parentAddressObject) {
             return  [
                 'offName' => $lastAddressObject->getOffName(),
-                'scName' => $lastAddressObject->getShortName()->getScName(),
-                'socrName' => $lastAddressObject->getShortName()->getSocrName(),
+                'scName' => $addressType->getScName(),
+                'socrName' => $addressType->getSocrName(),
                 'plainCode' => $lastAddressObject->getPlainCode(),
                 'currStatus' => $lastAddressObject->getCurrStatus(),
                 'actStatus' => $lastAddressObject->getActStatus(),
@@ -241,7 +245,8 @@ class FiasApiService extends AbstractService
         }
 
         try {
-            list($localLevel, $region) = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->getRegionAndLocalLevel($lastAddressObject);
+            list($localLevel, $region) = $addressObjectRepo->getRegionAndLocalLevel($lastAddressObject);
+            $regionType = $addressObjectTypeRepo->getAddressType($region);
         } catch (ObjectDeletedException $exception) {
             return [
                 'status' => 'error',
@@ -250,8 +255,9 @@ class FiasApiService extends AbstractService
         }
 
         try {
-            $lastParentAddressObject = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->getLast($parentAddressObject);
-            list($parentLocalLevel, $parentRegion) = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->getRegionAndLocalLevel($lastParentAddressObject);
+            $lastParentAddressObject = $addressObjectRepo->getLast($parentAddressObject);
+            $parentType = $addressObjectTypeRepo->getAddressType($lastParentAddressObject);
+            list($parentLocalLevel) = $addressObjectRepo->getRegionAndLocalLevel($lastParentAddressObject);
         } catch (ObjectDeletedException $exception) {
             return [
                 'status' => 'error',
@@ -259,17 +265,20 @@ class FiasApiService extends AbstractService
             ];
         }
 
+        $parentTransformer = $this->getAddressObjectTransformer()->setShortName($parentType);
+        $regionTransformer = $this->getAddressObjectTransformer()->setShortName($regionType);
+
         return [
             'offName' => $lastAddressObject->getOffName(),
-            'scName' => $lastAddressObject->getShortName()->getScName(),
-            'socrName' => $lastAddressObject->getShortName()->getSocrName(),
+            'scName' => $addressType->getScName(),
+            'socrName' => $addressType->getSocrName(),
             'plainCode' => $lastAddressObject->getPlainCode(),
             'currStatus' => $lastAddressObject->getCurrStatus(),
             'actStatus' => $lastAddressObject->getActStatus(),
             'liveStatus' => $lastAddressObject->getLiveStatus(),
             'aoLevel' => $lastAddressObject->getAoLevel(),
-            'parent' => $this->container->get('shiptor_fias.service.address_object')->transform($lastParentAddressObject),
-            'region' => $this->container->get('shiptor_fias.service.address_object')->transform($region),
+            'parent' => $parentTransformer->transform($lastParentAddressObject),
+            'region' => $regionTransformer->transform($region),
             'localLevel' => $localLevel,
             'parentLocalLevel' => $parentLocalLevel,
         ];
