@@ -337,6 +337,10 @@ class FiasApiService extends AbstractService
             try {
                 $codes[] = $prevAddress->getPlainCode();
                 $prevAddress = $prevAddress->getPrevId();
+
+                if ($prevAddress->getRemovedAt()) {
+                    throw new ObjectDeletedException();
+                }
             } catch (\Exception $exception) {
                 if (preg_match('/IDs aoId(.+) was not found/i', $exception->getMessage())) {
                     throw new ObjectDeletedException();
