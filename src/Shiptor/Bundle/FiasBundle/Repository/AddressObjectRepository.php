@@ -68,12 +68,16 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
         return $query;
     }
 
-    public function getNextId($id)
+    /**
+     * @param string $id
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    public function getNextsById(string $id)
     {
         return $this
             ->createQueryBuilder('ao')
-            ->andWhere('ao.aoId = :id')
-            ->setParameter('id', $id);
+            ->andWhere('ao.nextId = :nextId')
+            ->setParameter('nextId', $id);
     }
 
     /**
