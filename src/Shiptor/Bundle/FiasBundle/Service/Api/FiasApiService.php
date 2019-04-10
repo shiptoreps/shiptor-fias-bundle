@@ -1,6 +1,7 @@
 <?php
 namespace Shiptor\Bundle\FiasBundle\Service\Api;
 
+use Doctrine\ORM\AbstractQuery;
 use Moriony\RpcServer\Exception\InvalidParamException;
 use Moriony\RpcServer\Request\RpcRequestInterface;
 use Shiptor\Bundle\FiasBundle\AbstractService;
@@ -315,10 +316,11 @@ class FiasApiService extends AbstractService
     public function getPreviousCodes(RpcRequestInterface $request)
     {
         $code = $request->get('plainCode');
+        $addressObjectRepo = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject');
 
         $codes = [];
         /** @var AddressObject $addressObject */
-        $addressObject = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')
+        $addressObject = $addressObjectRepo
             ->createQueryBuilder('ao')
             ->where('ao.plainCode = :plainCode')
             ->orWhere('ao.code = :plainCode')
@@ -332,19 +334,33 @@ class FiasApiService extends AbstractService
         }
 
         $codes[] = $addressObject->getPlainCode();
-        $prevAddress = $addressObject->getPrevId();
-        while ($prevAddress) {
-            try {
-                $codes[] = $prevAddress->getPlainCode();
-                $prevAddress = $prevAddress->getPrevId();
-            } catch (\Exception $exception) {
-                if (preg_match('/IDs aoId(.+) was not found/i', $exception->getMessage())) {
-                    throw new ObjectDeletedException();
+        /** @var AddressObject[] $prevAddresses */
+        $prevAddresses = $addressObjectRepo->getNextsById($addressObject->getAoId())->getQuery()->getResult();
+
+        while ($prevAddresses) {
+            $clonePrevAddresses = $prevAddresses;
+            $prevAddresses = [];
+            foreach ($clonePrevAddresses as $prevAddress) {
+                try {
+                    $codes[] = $prevAddress->getPlainCode();
+
+                    if ($prevAddress->getRemovedAt()) {
+                        throw new ObjectDeletedException();
+                    }
+
+                    $prevAddresses = array_merge(
+                        $prevAddresses,
+                        $addressObjectRepo->getNextsById($prevAddress->getAoId())
+                            ->getQuery()->getResult()
+                    );
+                } catch (\Exception $exception) {
+                    if (preg_match('/IDs aoId(.+) was not found/i', $exception->getMessage())) {
+                        throw new ObjectDeletedException();
+                    }
+
+                    throw $exception;
                 }
-
-                throw $exception;
             }
-
         }
 
         return array_unique($codes);

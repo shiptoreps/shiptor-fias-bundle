@@ -68,12 +68,16 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
         return $query;
     }
 
-    public function getNextId($id)
+    /**
+     * @param string $id
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    public function getNextsById(string $id)
     {
         return $this
             ->createQueryBuilder('ao')
-            ->andWhere('ao.aoId = :id')
-            ->setParameter('id', $id);
+            ->andWhere('ao.nextId = :nextId')
+            ->setParameter('nextId', $id);
     }
 
     /**
@@ -156,6 +160,10 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
             $lastAddress = $nextAddress;
             try {
                 $nextAddress = $nextAddress->getNextId();
+
+                if ($nextAddress->getRemovedAt()) {
+                    throw new ObjectDeletedException();
+                }
             } catch (\Exception $exception) {
                 if (preg_match('/IDs aoId(.+) was not found/i', $exception->getMessage())) {
                     throw new ObjectDeletedException();

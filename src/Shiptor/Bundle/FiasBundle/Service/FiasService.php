@@ -7,6 +7,10 @@ use Shiptor\Bundle\FiasBundle\DataTransformer\AddressObjectUpsertTransformer;
 use Shiptor\Bundle\FiasBundle\DataTransformer\DataTransformerInterface;
 use Shiptor\Bundle\FiasBundle\Entity\AddressObject;
 use Shiptor\Bundle\FiasBundle\Entity\AddressObjectType;
+use Shiptor\Bundle\FiasBundle\Entity\House;
+use Shiptor\Bundle\FiasBundle\Entity\NormativeDocument;
+use Shiptor\Bundle\FiasBundle\Entity\Room;
+use Shiptor\Bundle\FiasBundle\Entity\Stead;
 use Shiptor\Bundle\FiasBundle\Serializer\Converters\AttributeConverter;
 use Shiptor\Bundle\FiasBundle\Serializer\Normalizers\DateTimeNormalizer;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
@@ -236,11 +240,27 @@ class FiasService extends AbstractService
             $metadata = $this->getEm()->getClassMetadata(get_class($entity));
             $entity = $this->getEm()->getRepository(get_class($entity))->findOneBy($metadata->getIdentifierValues($entity));
 
-            if ($entity) {
-                $this->getEm()->remove($entity);
-
-                $counter++;
+            if (!$entity) {
+                return $counter;
             }
+
+            if ($entity instanceof AddressObject) {
+                $entity->setRemovedAt(new \DateTime());
+            } elseif ($entity instanceof House) {
+
+            } elseif ($entity instanceof NormativeDocument) {
+
+            } elseif ($entity instanceof NormativeDocument) {
+
+            } elseif ($entity instanceof Room) {
+
+            } elseif ($entity instanceof Stead) {
+
+            } else {
+                $this->getEm()->remove($entity);
+            }
+
+            $counter++;
 
             if ($counter % $divisor  == 0) {
                 $this->getEm()->flush();
