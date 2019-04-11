@@ -161,7 +161,7 @@ class AddressObjectRepository extends \Doctrine\ORM\EntityRepository
             try {
                 $nextAddress = $nextAddress->getNextId();
 
-                if ($nextAddress->getRemovedAt()) {
+                if ($nextAddress && $nextAddress->getRemovedAt()) {
                     throw new ObjectDeletedException();
                 }
             } catch (\Exception $exception) {
