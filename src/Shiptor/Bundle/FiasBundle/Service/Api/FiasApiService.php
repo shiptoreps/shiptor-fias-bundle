@@ -1,7 +1,6 @@
 <?php
 namespace Shiptor\Bundle\FiasBundle\Service\Api;
 
-use Doctrine\ORM\AbstractQuery;
 use Moriony\RpcServer\Exception\InvalidParamException;
 use Moriony\RpcServer\Request\RpcRequestInterface;
 use Shiptor\Bundle\FiasBundle\AbstractService;
@@ -177,7 +176,9 @@ class FiasApiService extends AbstractService
 
         /** @var AddressObject $parentAddressObject */
         $parentAddressObject = $addressObjectRepo
-            ->getDirectParent($addressObject)
+            ->getAddressByAoGuid($addressObject->getParentGuid())
+            ->andWhere('ao.actStatus = :actStatus')
+            ->setParameter('actStatus', AddressObject::STATUS_ACTUAL)
             ->getQuery()
             ->getOneOrNullResult();
 
@@ -230,6 +231,8 @@ class FiasApiService extends AbstractService
 
         if (!$parentAddressObject) {
             return  [
+                'aoId' => $lastAddressObject->getAoId(),
+                'aoGuid' => $lastAddressObject->getAoGuid(),
                 'offName' => $lastAddressObject->getOffName(),
                 'scName' => $addressType->getScName(),
                 'socrName' => $addressType->getSocrName(),
@@ -257,6 +260,11 @@ class FiasApiService extends AbstractService
 
         try {
             $lastParentAddressObject = $addressObjectRepo->getLast($parentAddressObject);
+            if (!$lastParentAddressObject->getPlainCode()) {
+                $parentAddressObject = $addressObjectRepo->getAddressByAoGuid($lastParentAddressObject->getParentGuid())
+                    ->getQuery()->getOneOrNullResult();
+                $lastParentAddressObject = $addressObjectRepo->getLast($parentAddressObject);
+            }
             $parentType = $addressObjectTypeRepo->getAddressType($lastParentAddressObject);
             list($parentLocalLevel) = $addressObjectRepo->getRegionAndLocalLevel($lastParentAddressObject);
         } catch (ObjectDeletedException $exception) {
@@ -266,10 +274,9 @@ class FiasApiService extends AbstractService
             ];
         }
 
-        $parentTransformer = $this->getAddressObjectTransformer()->setShortName($parentType);
-        $regionTransformer = $this->getAddressObjectTransformer()->setShortName($regionType);
-
         return [
+            'aoId' => $lastAddressObject->getAoId(),
+            'aoGuid' => $lastAddressObject->getAoGuid(),
             'offName' => $lastAddressObject->getOffName(),
             'scName' => $addressType->getScName(),
             'socrName' => $addressType->getSocrName(),
@@ -278,8 +285,8 @@ class FiasApiService extends AbstractService
             'actStatus' => $lastAddressObject->getActStatus(),
             'liveStatus' => $lastAddressObject->getLiveStatus(),
             'aoLevel' => $lastAddressObject->getAoLevel(),
-            'parent' => $parentTransformer->transform($lastParentAddressObject),
-            'region' => $regionTransformer->transform($region),
+            'parent' => $this->getAddressObjectTransformer()->setShortName($parentType)->transform($lastParentAddressObject),
+            'region' => $this->getAddressObjectTransformer()->setShortName($regionType)->transform($region),
             'localLevel' => $localLevel,
             'parentLocalLevel' => $parentLocalLevel,
         ];
