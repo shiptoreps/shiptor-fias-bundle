@@ -210,6 +210,10 @@ class FiasApiService extends AbstractService
         try {
             /** @var AddressObject $lastAddressObject */
             $lastAddressObject = $addressObjectRepo->getLast($addressObject);
+
+            if ($lastAddressObject->getCurrStatus() === 99) {
+                throw new ObjectDeletedException();
+            }
         } catch (ObjectDeletedException $exception) {
             return [
                 'status' => 'error',
