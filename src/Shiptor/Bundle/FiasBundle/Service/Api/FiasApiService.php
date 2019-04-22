@@ -3,6 +3,7 @@ namespace Shiptor\Bundle\FiasBundle\Service\Api;
 
 use Moriony\RpcServer\Exception\InvalidParamException;
 use Moriony\RpcServer\Request\RpcRequestInterface;
+use Ramsey\Uuid\Uuid;
 use Shiptor\Bundle\FiasBundle\AbstractService;
 use Shiptor\Bundle\FiasBundle\Entity\AddressObject;
 use Shiptor\Bundle\FiasBundle\Exception\ObjectDeletedException;
@@ -134,13 +135,25 @@ class FiasApiService extends AbstractService
      */
     public function getAddressByFias(RpcRequestInterface $request)
     {
+        $isValid = Uuid::isValid($request->get(0));
+
+        if (!$isValid) {
+            return [
+                'status' => 'error',
+                'error'  => 'UUID is not valid',
+            ];
+        }
+
         $address = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObject')->findOneBy([
             'aoGuid' => $request->get(0),
             'actStatus' => 1,
         ]);
 
         if (!$address) {
-            throw new InvalidParamException('Address not found');
+            return [
+                'status' => 'error',
+                'error'  => 'Address not found',
+            ];
         }
         $addressObjectType = $this->getEm()->getRepository('ShiptorFiasBundle:AddressObjectType')->getAddressType($address);
         $transformer = $this->getAddressObjectTransformer();
