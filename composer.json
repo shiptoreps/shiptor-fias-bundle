@@ -16,7 +16,6 @@
     "symfony/http-kernel": "^3.3",
     "moriony/rpc-server": "^0.2.0",
     "moriony/rpc-client": "^0.0.2",
-    "ramsey/uuid-doctrine": "^1.4",
     "symfony/console": "^3.3",
     "symfony/framework-bundle": "^3.3",
     "symfony/serializer": "^3.3",
